@@ -25,9 +25,10 @@
             <span style="color: red;">{{ error }}</span>
             {% endfor %}
         </p>
+        <p><span style="color: tomato;">{{ error if error}}</span></p>
         <p>
             {{ form.submit() }}
         </p>
     </form>
-    <p>Groupname: {{ group }}</p>
+    <p>{{ data.date_to - data.date_from }}</p>
 {% endblock %}
