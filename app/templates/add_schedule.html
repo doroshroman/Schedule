@@ -30,5 +30,10 @@
             {{ form.submit() }}
         </p>
     </form>
-    <p>{{ data.date_to - data.date_from }}</p>
+    {% for day in data.days %}
+        <form action="" method="post" novalidate>
+            <h3>{{ day }}</h3>
+            
+        </form>
+    {% endfor %}
 {% endblock %}

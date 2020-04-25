@@ -2,6 +2,7 @@ from app import app
 from flask import render_template, flash
 from app.forms import AddScheduleForm
 import logging
+import utils
 
 @app.route('/')
 @app.route('/index')
@@ -15,14 +16,18 @@ def add_schedule():
     error = None
     if form.validate_on_submit():
         # Data from form is ready
+        group = form.groupname.data
+        date_from = form.date_from.data
+        date_to = form.date_to.data
+
+        days = utils.build_days_range(date_from, date_to)
+        app.logger.info(days)
+        
         data = {
-            "groupname" : form.groupname.data,
-            "date_from" : form.date_from.data,
-            "date_to" : form.date_to.data
-        }
-        # To log your testing data 
-        #app.logger.info(date_from)
-        # Validate correct date
+            "groupname" : group,
+            "days": days
+            }
+
     else:
         error = "Start date is greater than End date"
     
