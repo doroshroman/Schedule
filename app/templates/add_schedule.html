@@ -6,34 +6,63 @@
         {{ form.hidden_tag() }}
         <p>
             {{ form.groupname.label }}<br>
-            {{ form.groupname(size=32)}}<br>
+            {{ form.groupname(size=12)}}<br>
             {% for error in form.groupname.errors %}
             <span style="color: red;">{{ error }}</span>
             {% endfor %}
         </p>
         <p>
-            {{ form.date_from.label }}<br>
-            {{ form.date_from() }}<br>
-            {% for error in form.date_from.errors %}
-            <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.date_to.label }}<br>
-            {{ form.date_to() }}<br>
-            {% for error in form.date_to.errors %}
+            {{ form.day.label }}<br>
+            {{ form.day() }}<br>
+            {% for error in form.day.errors %}
             <span style="color: red;">{{ error }}</span>
             {% endfor %}
         </p>
         <p><span style="color: tomato;">{{ error if error}}</span></p>
+        <table>
+            <th>Pair</th>
+            <th>{{ form.auditory_first.label }}</th>
+            <th>{{ form.teacher_first.label }}</th>
+            <th>{{ form.subject_first.label }}</th>
+            <th>{{ form.subject_type_first.label }}</th>
+            <tr>
+                <td>1</td>
+                <td>{{ form.auditory_first() }}</td>
+                <td>{{ form.teacher_first() }}</td>
+                <td>{{ form.subject_first() }}</td>
+                <td>{{ form.subject_type_first() }}</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>{{ form.auditory_second() }}</td>
+                <td>{{ form.teacher_second()}}</td>
+                <td>{{ form.subject_second() }}</td>
+                <td>{{ form.subject_type_second() }}</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>{{ form.auditory_third() }}</td>
+                <td>{{ form.teacher_third()}}</td>
+                <td>{{ form.subject_third() }}</td>
+                <td>{{ form.subject_type_third() }}</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>{{ form.auditory_fourth() }}</td>
+                <td>{{ form.teacher_fourth()}}</td>
+                <td>{{ form.subject_fourth() }}</td>
+                <td>{{ form.subject_type_fourth() }}</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>{{ form.auditory_fifth() }}</td>
+                <td>{{ form.teacher_fifth()}}</td>
+                <td>{{ form.subject_fifth() }}</td>
+                <td>{{ form.subject_type_fifth() }}</td>
+            </tr>
+        </table>
         <p>
             {{ form.submit() }}
         </p>
     </form>
-    {% for day in data.days %}
-        <form action="" method="post" novalidate>
-            <h3>{{ day }}</h3>
-            
-        </form>
-    {% endfor %}
 {% endblock %}
