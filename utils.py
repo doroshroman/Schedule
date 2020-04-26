@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+import logging
 
 def count_days(date_start, date_end):
     return (date_end - date_start).days + 1
@@ -16,6 +17,19 @@ def build_days_range(date_start, date_end):
             days.append(date_start)
         date_start = date_start + timedelta(1)
     return days
+
+# For form utils and validation
+def read_lesson_data(form, order):
+    inputs = ["auditory", "teacher", "subject", "subject_type"]
+    fields = list(map(lambda x: x + str(order),inputs))
+    lesson = {}
+    for i, f in zip(inputs,fields):
+        lesson[i] = form[f].data
+    return lesson
+
+def is_valid_lesson(lesson):
+    return not('' in lesson.values() or None in lesson.values())
+
 
 if __name__ == "__main__":
     pass
