@@ -1,5 +1,4 @@
 from datetime import date, timedelta
-from enum import Enum
 
 def count_days(date_start, date_end):
     return (date_end - date_start).days + 1
