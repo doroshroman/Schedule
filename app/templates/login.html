@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+    {% block link %}
+    <link rel="stylesheet" type = "text/css" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <title>Вхід в систему</title>
+    {% endblock %}
+
 {% block content %}
     <h1 class="text-center">Sign In</h1>
     <form class="text-center" action="" method="post" novalidate>
@@ -11,6 +18,7 @@
                 <span style = "color:red;">[{{error}}]</span>
             {% endfor %}
         </p>
+
         <p>
             {{ form.password.label }}<br>
             {{ form.password(size=32) }}<br>
