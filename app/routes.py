@@ -69,7 +69,3 @@ def login():
         login_user(admin, remember=form.remember_me.data)
         return redirect(url_for('index'))
     return render_template('login.html', title='Sign In', form=form)
-<<<<<<< HEAD
-
-=======
->>>>>>> 44408640801299488acf66b812ecf41553a1c068
