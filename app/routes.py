@@ -1,26 +1,12 @@
-<<<<<<< HEAD
-from flask import render_template, flash, url_for
-from flask import request
+from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user
-from werkzeug.urls import url_parse
-from werkzeug.utils import redirect
 
 import utils
 from app import app
-from app import db
 from app.forms import AddScheduleForm
 from app.forms import LoginForm
 from app.models import *
-from app.models import Admin
 
-=======
-from app import app, db
-from flask import render_template, flash, redirect, url_for, request
-from app.forms import AddScheduleForm
-import logging
-import utils
-from app.models import *
->>>>>>> dd7c9e1af27c01af01d511766398de83f7c4a552
 
 @app.route('/')
 @app.route('/index')
@@ -66,7 +52,6 @@ def add_schedule():
 
     return render_template('add_schedule.html', form=form)
 
-<<<<<<< HEAD
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -80,6 +65,3 @@ def login():
         login_user(admin, remember=form.remember_me.data)
         return redirect(url_for('index'))
     return render_template('login.html', title='Sign In', form=form)
-
-=======
->>>>>>> dd7c9e1af27c01af01d511766398de83f7c4a552
