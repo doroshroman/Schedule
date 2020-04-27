@@ -1,3 +1,4 @@
+from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login
@@ -35,7 +36,7 @@ class Lesson(db.Model):
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'))
 
-class Admin(db.Model):
+class Admin(UserMixin,db.Model):
     __tablename__ = 'admins'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)

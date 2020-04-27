@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" type = "text/css" href="{{url_for('static',filename='style.css')}}">
+{% extends "base.html" %}
+
+    {% block link %}
+    <link rel="stylesheet" type = "text/css" href="/static/css/style.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <meta charset="UTF-8">
     <title>Вхід в систему</title>
-</head>
-<body>
-{% extends "base.html" %}
+    {% endblock %}
 
 {% block content %}
     <h1 class="text-center">Sign In</h1>
