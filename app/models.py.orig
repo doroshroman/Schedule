@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login
 
+=======
 from app import db
+>>>>>>> dd7c9e1af27c01af01d511766398de83f7c4a552
 
 class Teacher(db.Model):
     __tablename__ = 'teachers'
@@ -34,6 +37,7 @@ class Lesson(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'))
+<<<<<<< HEAD
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,3 +53,7 @@ class Admin(db.Model):
 @login.user_loader
 def load_user(id):
     return Admin.query.get(int(id))
+=======
+    
+    
+>>>>>>> dd7c9e1af27c01af01d511766398de83f7c4a552

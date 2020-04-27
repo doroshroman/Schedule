@@ -1,6 +1,9 @@
 from flask_wtf import FlaskForm
+<<<<<<< HEAD
 from wtforms import StringField, SubmitField, SelectField, PasswordField, BooleanField
+=======
 from wtforms import StringField, SubmitField, SelectField
+>>>>>>> dd7c9e1af27c01af01d511766398de83f7c4a552
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Optional
 from datetime import date
@@ -35,10 +38,12 @@ class AddScheduleForm(FlaskForm):
     subject_type5 = SelectField('Type',default='',validators=[Optional()], choices=[('lec', 'Lecture'), ('lab', 'Practise')])
 
     submit = SubmitField('Add')
+<<<<<<< HEAD
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
-
+=======
+>>>>>>> dd7c9e1af27c01af01d511766398de83f7c4a552
