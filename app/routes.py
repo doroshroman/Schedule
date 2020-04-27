@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import render_template, flash, url_for
 from flask import request
 from flask_login import current_user, login_user
@@ -12,6 +13,14 @@ from app.forms import LoginForm
 from app.models import *
 from app.models import Admin
 
+=======
+from app import app, db
+from flask import render_template, flash, redirect, url_for, request
+from app.forms import AddScheduleForm
+import logging
+import utils
+from app.models import *
+>>>>>>> dd7c9e1af27c01af01d511766398de83f7c4a552
 
 @app.route('/')
 @app.route('/index')
@@ -57,6 +66,7 @@ def add_schedule():
 
     return render_template('add_schedule.html', form=form)
 
+<<<<<<< HEAD
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -71,3 +81,5 @@ def login():
         return redirect(url_for('index'))
     return render_template('login.html', title='Sign In', form=form)
 
+=======
+>>>>>>> dd7c9e1af27c01af01d511766398de83f7c4a552
