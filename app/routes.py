@@ -1,16 +1,12 @@
 from flask import render_template, flash, url_for
 from flask import request
 from flask_login import current_user, login_user
-from werkzeug.urls import url_parse
-from werkzeug.utils import redirect
 
 import utils
 from app import app
-from app import db
 from app.forms import AddScheduleForm
 from app.forms import LoginForm
 from app.models import *
-from app.models import Admin
 
 
 @app.route('/')
@@ -73,4 +69,7 @@ def login():
         login_user(admin, remember=form.remember_me.data)
         return redirect(url_for('index'))
     return render_template('login.html', title='Sign In', form=form)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 44408640801299488acf66b812ecf41553a1c068
