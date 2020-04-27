@@ -14,7 +14,7 @@ def index():
 @app.route('/add_schedule', methods=['GET', 'POST'])
 def add_schedule():
     form = AddScheduleForm()
-
+    error = None
     if form.validate_on_submit():
         # Grab data from form
         try:
@@ -26,7 +26,7 @@ def add_schedule():
             for i in range(PAIRS):
                 lesson = utils.read_lesson_data(form, i+1)
                 if utils.is_valid_lesson(lesson):
-                    
+
                     name, surname, patronymic = lesson["teacher"].split()
                     teacher = db.session().query(Teacher).filter(
                         Teacher.name.like(name),
@@ -42,10 +42,13 @@ def add_schedule():
                     pair = Lesson(date=day, order=i+1, auditory=lesson["auditory"], teacher=teacher, group=group_record, subject=subj_record)
                     db.session.add(pair)
                     db.session.commit()
-
+            
+            # After successful adding pair
+            return redirect(url_for('add_schedule'))
+            
         except Exception as e:
             app.logger.info(e)
-            pass
-
-    return render_template('add_schedule.html', form=form)
+            error = "Incorrect fields!"
+    
+    return render_template('add_schedule.html', form=form, error=error)
 

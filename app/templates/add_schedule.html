@@ -18,7 +18,6 @@
             <span style="color: red;">{{ error }}</span>
             {% endfor %}
         </p>
-        <p><span style="color: tomato;">{{ error if error}}</span></p>
         <table>
             <th>Pair</th>
             <th>{{ form.auditory1.label }}</th>
@@ -61,6 +60,7 @@
                 <td>{{ form.subject_type5() }}</td>
             </tr>
         </table>
+        <p><span style="color: tomato;">{{ error if error}}</span></p>
         <p>
             {{ form.submit() }}
         </p>

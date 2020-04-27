@@ -31,5 +31,6 @@ def is_valid_lesson(lesson):
     return not('' in lesson.values() or None in lesson.values())
 
 
+
 if __name__ == "__main__":
     pass
