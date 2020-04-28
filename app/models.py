@@ -13,11 +13,22 @@ class Teacher(db.Model):
     patronymic = db.Column(db.String(45))
     lessons = db.relationship('Lesson', backref='teacher', lazy='dynamic')
 
+    def as_dict(self):
+        return {
+            'name': self.name,
+            'surname': self.surname,
+            'patronymic': self.patronymic
+            }
+
 class Group(db.Model):
     __tablename__ = 'groups'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(45))
     lessons = db.relationship('Lesson', backref='group', lazy='dynamic')
+
+    def as_dict(self):
+        return {'name': self.name}
+
 
 class Subject(db.Model):
     __tablename__ = 'subjects'
@@ -25,6 +36,12 @@ class Subject(db.Model):
     title = db.Column(db.String(255))
     subj_type = db.Column(db.String(45))
     lessons = db.relationship('Lesson', backref='subject', lazy='dynamic')
+
+    def as_dict(self):
+        return {
+            'title': self.title,
+            'subj_type': self.subj_type
+            }
 
 class Lesson(db.Model):
     __tablename__ = 'lessons'

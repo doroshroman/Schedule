@@ -20,3 +20,6 @@ input{
     transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
+.page-wrap {
+    min-height: 100vh;
+}
