@@ -1,6 +1,8 @@
 from builtins import range
 from datetime import date, timedelta
 import logging
+from app.models import *
+from app import db
 
 def count_days(date_start, date_end):
     return (date_end - date_start).days + 1
@@ -31,6 +33,22 @@ def read_lesson_data(form, order):
 def is_valid_lesson(lesson):
     return not('' in lesson.values() or None in lesson.values())
 
+# Db queries
+def get_group_by_name(name):
+    return db.session().query(Group).filter_by(name=name).one()
+
+def get_teacher(name, surname, patronymic):
+    teacher = db.session().query(Teacher).filter(
+                        Teacher.name.like(name),
+                        Teacher.surname.like(surname),
+                        Teacher.patronymic.like(patronymic)).one()
+    return teacher
+
+def get_subject(title, subj_type):
+    subj_record = db.session.query(Subject).filter(
+                        Subject.title.like(title),
+                        Subject.subj_type.like(subj_type)).one()
+    return subj_record
 
 if __name__ == "__main__":
     pass

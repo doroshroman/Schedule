@@ -70,7 +70,11 @@
             </tr>
             </tbody>
         </table>
-        <p><span style="color: red;">{{ error if error}}</span></p>
+        <div class="text-left">
+            {% for error in errors %}
+            <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+        </div>
         <p>
             {{ form.submit(class="btn btn-primary mb-2 pull-right") }}
         </p>
