@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
@@ -16,10 +16,10 @@ def index():
 
 
 @app.route('/add_schedule', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def add_schedule():
     form = AddScheduleForm()
-
+    error = None
     if form.validate_on_submit():
         # Grab data from form
         try:
@@ -27,7 +27,7 @@ def add_schedule():
             group_record = db.session().query(Group).filter_by(name=group).one()
             day = form.day.data
             PAIRS = 5
-
+            
             for i in range(PAIRS):
                 lesson = utils.read_lesson_data(form, i+1)
                 if utils.is_valid_lesson(lesson):
@@ -49,10 +49,11 @@ def add_schedule():
                     db.session.commit()
 
         except Exception as e:
+            error = "Incorrect data"
             app.logger.info(e)
             pass
 
-    return render_template('add_schedule.html', form=form)
+    return render_template('add_schedule.html', form=form, error=error)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -76,3 +77,21 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/groups')
+def groups():
+    records = Group.query.all()
+    group_list = [rec.as_dict() for rec in records]
+    return jsonify(group_list)
+
+@app.route('/teachers')
+def teachers():
+    records = Teacher.query.all()
+    teacher_list = [rec.as_dict() for rec in records]
+    return jsonify(teacher_list)
+
+@app.route('/subjects')
+def subjects():
+    records = Subject.query.all()
+    subject_list = [rec.as_dict() for rec in records]
+    return jsonify(subject_list)

@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block link %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+{% endblock %}
 
 {% block content %}
     <h1>Creating Schedule</h1>
@@ -18,7 +21,6 @@
             <span style="color: red;">{{ error }}</span>
             {% endfor %}
         </p>
-        <p><span style="color: tomato;">{{ error if error}}</span></p>
         <table>
             <th>Pair</th>
             <th>{{ form.auditory1.label }}</th>
@@ -61,8 +63,13 @@
                 <td>{{ form.subject_type5() }}</td>
             </tr>
         </table>
+        <p><span style="color: red;">{{ error if error}}</span></p>
         <p>
             {{ form.submit() }}
         </p>
+        
     </form>
+    <script type=text/javascript src="{{
+        url_for('static', filename='js/index.js') }}"></script>
+    
 {% endblock %}
