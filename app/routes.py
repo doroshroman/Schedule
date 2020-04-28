@@ -2,19 +2,39 @@ from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy.exc import SQLAlchemyError
-
+from datetime import date, timedelta
 import utils
 from app import app
 from app.forms import AddScheduleForm
 from app.forms import LoginForm
+from app.forms import SearchForm
 from app.models import *
 
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 def index():
-    return "Hello World!"
+    form = SearchForm()
+    error = None
+    from_day = None
+    to_day = None 
+    teacher_name = None
+    lessons = {}
+    
+    if form.validate_on_submit():
+        group = form.groupname.data
+        from_day = form.from_day.data
+        to_day = form.to_day.data
+        teacher_name = form.teacher_name.data
 
+        try:
+            group_record = utils.get_group_by_name(group)
+            lessons = utils.get_lessons_range(group_record, from_day, to_day)
+            app.logger.info(lessons)
+        except SQLAlchemyError as e:
+            error = "Incorrect input data!"
+
+    return render_template('show_schedule.html', form=form, day_schedules=lessons, error=error)
 
 @app.route('/add_schedule', methods=['GET', 'POST'])
 #@login_required
@@ -58,6 +78,7 @@ def add_schedule():
                     errors.append(e)
 
     return render_template('add_schedule.html', form=form, errors=errors)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

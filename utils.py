@@ -1,8 +1,8 @@
 from builtins import range
 from datetime import date, timedelta
-import logging
+from flask import logging
 from app.models import *
-from app import db
+from app import app, db
 
 def count_days(date_start, date_end):
     return (date_end - date_start).days + 1
@@ -49,6 +49,25 @@ def get_subject(title, subj_type):
                         Subject.title.like(title),
                         Subject.subj_type.like(subj_type)).one()
     return subj_record
+
+def get_lessons(group, date):
+    lessons_per_day = db.session.query(Lesson).filter_by(group=group, date=date).order_by(Lesson.order).all()
+    return lessons_per_day 
+
+def get_lessons_range(group, date_from, date_to):
+    lessons_range = db.session.query(Lesson).filter_by(group=group).filter(Lesson.date.between(date_from, date_to)).all()
+    lessons = convert_lessons_to_dict(lessons_range)
+    return lessons
+
+def convert_lessons_to_dict(lessons):
+    lessons_dict = {}
+    for lesson in lessons:
+        key = lesson.date
+        if key in lessons_dict:
+            lessons_dict[key].append(lesson)
+        else:
+            lessons_dict[key] = [lesson]
+    return lessons_dict
 
 if __name__ == "__main__":
     pass
