@@ -1,71 +1,78 @@
 {% extends "base.html" %}
 {% block link %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet" type = "text/css" href="{{
+        url_for('static', filename='css/style.css') }}">
 {% endblock %}
 
 {% block content %}
-    <h1>Creating Schedule</h1>
-    <form action="" method="post" novalidate>
+    <h1 class="h1 text-center">Creating Schedule</h1>
+    <form id="add-form" action="" method="post" novalidate >
         {{ form.hidden_tag() }}
-        <p>
+        <div class="form-row ml-2"> 
+            <div class="form-group col-md-2">
             {{ form.groupname.label }}<br>
-            {{ form.groupname(size=12)}}<br>
+            {{ form.groupname(size=12, class="form-control")}}<br>
             {% for error in form.groupname.errors %}
             <span style="color: red;">{{ error }}</span>
             {% endfor %}
-        </p>
-        <p>
+            </div>
+            <div class="form-group col-md-2">
             {{ form.day.label }}<br>
-            {{ form.day() }}<br>
+            {{ form.day(class="form-control") }}<br>
             {% for error in form.day.errors %}
             <span style="color: red;">{{ error }}</span>
             {% endfor %}
-        </p>
-        <table>
-            <th>Pair</th>
-            <th>{{ form.auditory1.label }}</th>
-            <th>{{ form.teacher1.label }}</th>
-            <th>{{ form.subject1.label }}</th>
-            <th>{{ form.subject_type1.label }}</th>
+            </div>
+        </div>
+        <table class="table table-striped text-center form-group">
+            <tr>
+                <th>Pair</th>
+                <th>{{ form.auditory1.label }}</th>
+                <th>{{ form.teacher1.label }}</th>
+                <th>{{ form.subject1.label }}</th>
+                <th>{{ form.subject_type1.label }}</th>
+            </tr>
             <tr>
                 <td>1</td>
-                <td>{{ form.auditory1() }}</td>
-                <td>{{ form.teacher1() }}</td>
-                <td>{{ form.subject1() }}</td>
-                <td>{{ form.subject_type1() }}</td>
+                <td>{{ form.auditory1(class="form-control") }}</td>
+                <td>{{ form.teacher1(size=32, class="form-control") }}</td>
+                <td>{{ form.subject1(size=32, class="form-control") }}</td>
+                <td>{{ form.subject_type1(class="form-control") }}</td>
             </tr>
             <tr>
                 <td>2</td>
-                <td>{{ form.auditory2() }}</td>
-                <td>{{ form.teacher2()}}</td>
-                <td>{{ form.subject2() }}</td>
-                <td>{{ form.subject_type2() }}</td>
+                <td>{{ form.auditory2(class="form-control") }}</td>
+                <td>{{ form.teacher2(size=32, class="form-control")}}</td>
+                <td>{{ form.subject2(size=32, class="form-control") }}</td>
+                <td>{{ form.subject_type2(class="form-control") }}</td>
             </tr>
             <tr>
                 <td>3</td>
-                <td>{{ form.auditory3() }}</td>
-                <td>{{ form.teacher3()}}</td>
-                <td>{{ form.subject3() }}</td>
-                <td>{{ form.subject_type3() }}</td>
+                <td>{{ form.auditory3(class="form-control") }}</td>
+                <td>{{ form.teacher3(size=32, class="form-control")}}</td>
+                <td>{{ form.subject3(size=32, class="form-control") }}</td>
+                <td>{{ form.subject_type3(class="form-control") }}</td>
             </tr>
             <tr>
                 <td>4</td>
-                <td>{{ form.auditory4() }}</td>
-                <td>{{ form.teacher4()}}</td>
-                <td>{{ form.subject4() }}</td>
-                <td>{{ form.subject_type4() }}</td>
+                <td>{{ form.auditory4(class="form-control") }}</td>
+                <td>{{ form.teacher4(size=32, class="form-control")}}</td>
+                <td>{{ form.subject4(size=32, class="form-control") }}</td>
+                <td>{{ form.subject_type4(class="form-control") }}</td>
             </tr>
             <tr>
                 <td>5</td>
-                <td>{{ form.auditory5() }}</td>
-                <td>{{ form.teacher5()}}</td>
-                <td>{{ form.subject5() }}</td>
-                <td>{{ form.subject_type5() }}</td>
+                <td>{{ form.auditory5(class="form-control") }}</td>
+                <td>{{ form.teacher5(size=32, class="form-control")}}</td>
+                <td>{{ form.subject5(size=32, class="form-control") }}</td>
+                <td>{{ form.subject_type5(class="form-control") }}</td>
             </tr>
+            </tbody>
         </table>
         <p><span style="color: red;">{{ error if error}}</span></p>
         <p>
-            {{ form.submit() }}
+            {{ form.submit(class="btn btn-primary mb-2 pull-right") }}
         </p>
         
     </form>

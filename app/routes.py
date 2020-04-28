@@ -49,8 +49,7 @@ def add_schedule():
                     db.session.commit()
 
         except Exception as e:
-            error = "Incorrect data"
-            app.logger.info(e)
+            error = e
             pass
 
     return render_template('add_schedule.html', form=form, error=error)
@@ -95,3 +94,8 @@ def subjects():
     records = Subject.query.all()
     subject_list = [rec.as_dict() for rec in records]
     return jsonify(subject_list)
+
+@app.errorhandler(404)
+def page_not_found(error):
+	app.logger.error(f'Page not found: {request.path}')
+	return render_template('404.html'), 404

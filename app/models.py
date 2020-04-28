@@ -47,7 +47,7 @@ class Lesson(db.Model):
     __tablename__ = 'lessons'
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date)
-    order = db.Column(db.Integer, unique=True)
+    order = db.Column(db.Integer)
     auditory = db.Column(db.String(45))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
