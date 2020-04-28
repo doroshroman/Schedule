@@ -1,58 +1,84 @@
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
-
+from sqlalchemy.exc import SQLAlchemyError
+from datetime import date, timedelta
 import utils
 from app import app
 from app.forms import AddScheduleForm
 from app.forms import LoginForm
+from app.forms import SearchForm
 from app.models import *
 
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 def index():
-    return "Hello World!"
+    form = SearchForm()
+    error = None
+    from_day = None
+    to_day = None 
+    teacher_name = None
+    lessons = {}
+    
+    if form.validate_on_submit():
+        group = form.groupname.data
+        from_day = form.from_day.data
+        to_day = form.to_day.data
+        teacher_name = form.teacher_name.data
 
+        try:
+            group_record = utils.get_group_by_name(group)
+            lessons = utils.get_lessons_range(group_record, from_day, to_day)
+            app.logger.info(lessons)
+        except SQLAlchemyError as e:
+            error = "Incorrect input data!"
+
+    return render_template('show_schedule.html', form=form, day_schedules=lessons, error=error)
 
 @app.route('/add_schedule', methods=['GET', 'POST'])
 #@login_required
 def add_schedule():
     form = AddScheduleForm()
-    error = None
+    errors = []
     if form.validate_on_submit():
         # Grab data from form
+        group = form.groupname.data
+        day = form.day.data
+        PAIRS = 5
+        group_record = None
+
         try:
-            group = form.groupname.data
-            group_record = db.session().query(Group).filter_by(name=group).one()
-            day = form.day.data
-            PAIRS = 5
+            group_record = utils.get_group_by_name(group)
+        except SQLAlchemyError as e:
+            e = "Group not found"
+            errors.append(e)
             
-            for i in range(PAIRS):
-                lesson = utils.read_lesson_data(form, i+1)
-                if utils.is_valid_lesson(lesson):
-                    
-                    name, surname, patronymic = lesson["teacher"].split()
-                    teacher = db.session().query(Teacher).filter(
-                        Teacher.name.like(name),
-                        Teacher.surname.like(surname),
-                        Teacher.patronymic.like(patronymic)
-                    ).one()
-                    title = lesson["subject"]
-                    subj_type = lesson["subject_type"]
-                    subj_record = db.session.query(Subject).filter(
-                        Subject.title.like(title),
-                        Subject.subj_type.like(subj_type)
-                    ).one()
-                    pair = Lesson(date=day, order=i+1, auditory=lesson["auditory"], teacher=teacher, group=group_record, subject=subj_record)
+        for i in range(PAIRS):
+            lesson = utils.read_lesson_data(form, i+1)
+            if utils.is_valid_lesson(lesson): 
+                # Parse field 
+                auditory = lesson["auditory"]
+                name, surname, patronymic = lesson["teacher"].split()
+                title = lesson["subject"]
+                subj_type = lesson["subject_type"]
+
+                try:
+                    teacher = utils.get_teacher(name, surname, patronymic)
+                    subject = utils.get_subject(title, subj_type)
+                    pair = Lesson(date=day, order=i+1, auditory=auditory, teacher=teacher, group=group_record, subject=subject)
                     db.session.add(pair)
                     db.session.commit()
 
-        except Exception as e:
-            error = e
-            pass
+                    return redirect(url_for('index'))
 
-    return render_template('add_schedule.html', form=form, error=error)
+                except SQLAlchemyError as e:
+                    app.logger.error(e)
+                    e = f"Some fields are incorrect in {i+1} row!"
+                    errors.append(e)
+
+    return render_template('add_schedule.html', form=form, errors=errors)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

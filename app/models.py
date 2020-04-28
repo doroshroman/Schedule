@@ -49,9 +49,9 @@ class Lesson(db.Model):
     date = db.Column(db.Date)
     order = db.Column(db.Integer)
     auditory = db.Column(db.String(45))
-    teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'))
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
-    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'))
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable=False)
 
 class Admin(UserMixin,db.Model):
     __tablename__ = 'admins'
