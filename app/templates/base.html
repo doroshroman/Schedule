@@ -1,5 +1,6 @@
 <html>
     <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
         {% block link %}{% endblock %}
         <meta charset="utf-8">
         <link rel="stylesheet" type = "text/css" href="{{url_for('static',filename='style.css')}}">
@@ -7,6 +8,9 @@
         <title>Faculty Schedule</title>
     </head>
     <body>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         {% block content %}{% endblock %}
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+        
     </body>
 </html>

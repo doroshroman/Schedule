@@ -1,61 +1,84 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
-
+from sqlalchemy.exc import SQLAlchemyError
+from datetime import date, timedelta
 import utils
 from app import app
 from app.forms import AddScheduleForm
 from app.forms import LoginForm
+from app.forms import SearchForm
 from app.models import *
 
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 def index():
-    return "Hello World!"
+    form = SearchForm()
+    error = None
+    from_day = None
+    to_day = None 
+    teacher_name = None
+    lessons = {}
+    
+    if form.validate_on_submit():
+        group = form.groupname.data
+        from_day = form.from_day.data
+        to_day = form.to_day.data
+        teacher_name = form.teacher_name.data
 
+        try:
+            group_record = utils.get_group_by_name(group)
+            lessons = utils.get_lessons_range(group_record, from_day, to_day)
+            app.logger.info(lessons)
+        except SQLAlchemyError as e:
+            error = "Incorrect input data!"
+
+    return render_template('show_schedule.html', form=form, day_schedules=lessons, error=error)
 
 @app.route('/add_schedule', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def add_schedule():
     form = AddScheduleForm()
-    error = None
+    errors = []
     if form.validate_on_submit():
         # Grab data from form
+        group = form.groupname.data
+        day = form.day.data
+        PAIRS = 5
+        group_record = None
+
         try:
-            group = form.groupname.data
-            group_record = db.session().query(Group).filter_by(name=group).one()
-            day = form.day.data
-            PAIRS = 5
+            group_record = utils.get_group_by_name(group)
+        except SQLAlchemyError as e:
+            e = "Group not found"
+            errors.append(e)
+            
+        for i in range(PAIRS):
+            lesson = utils.read_lesson_data(form, i+1)
+            if utils.is_valid_lesson(lesson): 
+                # Parse field 
+                auditory = lesson["auditory"]
+                name, surname, patronymic = lesson["teacher"].split()
+                title = lesson["subject"]
+                subj_type = lesson["subject_type"]
 
-            for i in range(PAIRS):
-                lesson = utils.read_lesson_data(form, i+1)
-                if utils.is_valid_lesson(lesson):
-
-                    name, surname, patronymic = lesson["teacher"].split()
-                    teacher = db.session().query(Teacher).filter(
-                        Teacher.name.like(name),
-                        Teacher.surname.like(surname),
-                        Teacher.patronymic.like(patronymic)
-                    ).one()
-                    title = lesson["subject"]
-                    subj_type = lesson["subject_type"]
-                    subj_record = db.session.query(Subject).filter(
-                        Subject.title.like(title),
-                        Subject.subj_type.like(subj_type)
-                    ).one()
-                    pair = Lesson(date=day, order=i+1, auditory=lesson["auditory"], teacher=teacher, group=group_record, subject=subj_record)
+                try:
+                    teacher = utils.get_teacher(name, surname, patronymic)
+                    subject = utils.get_subject(title, subj_type)
+                    pair = Lesson(date=day, order=i+1, auditory=auditory, teacher=teacher, group=group_record, subject=subject)
                     db.session.add(pair)
                     db.session.commit()
-            
-            # After successful adding pair
-            return redirect(url_for('add_schedule'))
-            
-        except Exception as e:
-            app.logger.info(e)
-            error = "Incorrect fields!"
-    
-    return render_template('add_schedule.html', form=form, error=error)
+
+                    return redirect(url_for('index'))
+
+                except SQLAlchemyError as e:
+                    app.logger.error(e)
+                    e = f"Some fields are incorrect in {i+1} row!"
+                    errors.append(e)
+
+    return render_template('add_schedule.html', form=form, errors=errors)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -79,3 +102,26 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/groups')
+def groups():
+    records = Group.query.all()
+    group_list = [rec.as_dict() for rec in records]
+    return jsonify(group_list)
+
+@app.route('/teachers')
+def teachers():
+    records = Teacher.query.all()
+    teacher_list = [rec.as_dict() for rec in records]
+    return jsonify(teacher_list)
+
+@app.route('/subjects')
+def subjects():
+    records = Subject.query.all()
+    subject_list = [rec.as_dict() for rec in records]
+    return jsonify(subject_list)
+
+@app.errorhandler(404)
+def page_not_found(error):
+	app.logger.error(f'Page not found: {request.path}')
+	return render_template('404.html'), 404
