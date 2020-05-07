@@ -1,9 +1,11 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app import db, login
-
-from app import db
+from app import app, db, login
+import datetime as dt
+import utils
+import random
+import copy
 
 class Teacher(db.Model):
     __tablename__ = 'teachers'
@@ -68,3 +70,46 @@ class Admin(UserMixin,db.Model):
 @login.user_loader
 def load_user(id):
     return Admin.query.get(int(id))
+
+class Timetable():
+    def __init__(self, group, total_hours, date_from, date_to):
+        self.group = group
+        self.total_hours = total_hours
+        self.date_from = dt.datetime.strptime(date_from, '%Y-%m-%d')
+        self.date_to = dt.datetime.strptime(date_to, '%Y-%m-%d')
+        
+    def generate_random_timetable(self, subjects=None):
+        # Insert into random day and in random order
+        # 1. Choose random day
+        # 2. Choose random number from 1 to 5(inclusive)
+        # 3. Choose random auditory
+        # 4. Choose random teacher
+        # 5. Choose random subject and update hours
+        # 6. We have group
+        # Create lesson
+        days = utils.count_days(self.date_from, self.date_to)
+        index = random.randrange(0, days)
+        random_day = self.date_from + dt.timedelta(days=index)
+        
+        pairs = 5
+        number = random.randrange(1, pairs + 1)
+
+        auditory = random.randrange(300, 400)
+
+        index = random.randrange(0, db.session.query(Teacher).count())
+        teacher = db.session.query(Teacher)[index] 
+        
+        subjects = copy.deepcopy(subjects)
+        index = random.randrange(0, len(subjects))
+        random_subject = subjects[index]
+        subject_title = random_subject.get('subject', '')
+        subject_type = random_subject.get('subj_type', '')
+        
+        subject = utils.get_subject(subject_title, subject_type)
+        group = utils.get_group_by_name(self.group)
+
+        lesson = Lesson(date=random_day, order=number, auditory=auditory, teacher=teacher, group=group, subject=subject)
+        db.session.add(lesson)
+        db.session.commit()
+        
+

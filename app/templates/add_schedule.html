@@ -1,10 +1,4 @@
 {% extends "base.html" %}
-{% block link %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
-    <link rel="stylesheet" type = "text/css" href="{{
-        url_for('static', filename='css/style.css') }}">
-{% endblock %}
-
 {% block content %}
     <h1 class="h1 text-center">Creating Schedule</h1>
     <form id="add-form" action="" method="post" novalidate >
@@ -24,15 +18,8 @@
             <span style="color: red;">{{ error }}</span>
             {% endfor %}
         </p>
-        <table>
-            <th>Pair</th>
-            <th>{{ form.auditory1.label }}</th>
-            <th>{{ form.teacher1.label }}</th>
-            <th>{{ form.subject1.label }}</th>
-            <th>{{ form.subject_type1.label }}</th>
-            </div>
         </div>
-        <table class="table table-striped text-center form-group">
+        <table class="table table-striped table-sm text-center form-group">
             <tr>
                 <th>Pair</th>
                 <th>{{ form.auditory1.label }}</th>

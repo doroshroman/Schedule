@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Add semester schedule</h2>
+<form id="semester-form" method="POST">
+    <input id="groupname" type="text" name="groupname" size="12">
+    <input id="total-hours"type="number" name="total_hours">
+    <input id="date-from" type="date" name="date-from">
+    <input id="date-to" type="date" name="date-to">
+    <input id="add-subject" type="button" name="add-subject" value="Add subject">
+    <div id="subject-container">
+    </div>
+    <br><br>
+    
+    <input id="submit" type="submit" name="submit" value="Submit">
+</form>
+
+<script type=text/javascript src="{{
+    url_for('static', filename='js/form.js')}}"></script>
+
+    <script type=text/javascript src="{{
+        url_for('static', filename='js/index.js')}}"></script>
+{% endblock %}

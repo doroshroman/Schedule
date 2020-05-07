@@ -33,7 +33,6 @@ def read_lesson_data(form, order):
 def is_valid_lesson(lesson):
     return not('' in lesson.values() or None in lesson.values())
 
-# Db queries
 def get_group_by_name(name):
     return db.session().query(Group).filter_by(name=name).one()
 
@@ -43,20 +42,25 @@ def get_teacher(name, surname, patronymic):
                         Teacher.surname.like(surname),
                         Teacher.patronymic.like(patronymic)).one()
     return teacher
+    
+def get_random_teacher():
+    index = random.randrange(0, db.session.query(Teacher).count())
+    return db.session.query(Teacher)[index] 
 
 def get_subject(title, subj_type):
     subj_record = db.session.query(Subject).filter(
-                        Subject.title.like(title),
-                        Subject.subj_type.like(subj_type)).one()
+                    Subject.title.like(title),
+                    Subject.subj_type.like(subj_type)).one()
     return subj_record
 
+   
 def get_lessons(group, date):
     lessons_per_day = db.session.query(Lesson).filter_by(group=group, date=date).order_by(Lesson.order).all()
     return lessons_per_day 
 
 def get_lessons_range(group, date_from, date_to):
     lessons_range = db.session.query(Lesson).filter_by(group=group).filter(Lesson.date.between(date_from, date_to)).all()
-    lessons = convert_lessons_to_dict(lessons_range)
+    lessons = utils.convert_lessons_to_dict(lessons_range)
     return lessons
 
 def convert_lessons_to_dict(lessons):

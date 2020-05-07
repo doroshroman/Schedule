@@ -10,7 +10,6 @@ from app.forms import LoginForm
 from app.forms import SearchForm
 from app.models import *
 
-
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
 def index():
@@ -125,3 +124,19 @@ def subjects():
 def page_not_found(error):
 	app.logger.error(f'Page not found: {request.path}')
 	return render_template('404.html'), 404
+
+@app.route('/create', methods=["GET", "POST"])
+def create():
+    # Creating schedule for one semester
+    schedule_meta = request.json
+    
+    if schedule_meta is not None:
+        group = schedule_meta.get('groupname', '')
+        total_hours = schedule_meta.get('total_hours', 0)
+        date_from = schedule_meta.get('date_from')
+        date_to = schedule_meta.get('date_to')
+        subjects = schedule_meta.get('subjects')
+        timetable = Timetable(group, total_hours, date_from, date_to)
+        timetable.generate_random_timetable(subjects)
+
+    return render_template('semester.html')
