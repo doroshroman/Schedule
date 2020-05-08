@@ -73,6 +73,8 @@ def convert_lessons_to_dict(lessons):
             lessons_dict[key] = [lesson]
     return lessons_dict
 
+class CannotCreateException(Exception):
+    pass
 
 if __name__ == "__main__":
     pass

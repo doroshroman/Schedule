@@ -3,10 +3,18 @@ $(document).ready(function(){
     let subjects = loadSubjects();
 
     $('#add-subject').click(() =>{
-        let subject = $('<input class="subjects" type="text" name="subject">');
-        let subj_type = $('<select name="select"><option value="lec">Lecture</option> \
-                        <option value="lab" selected>Practise</option>');
-        let hours = $('<input type="number" name="subject_hours"><br><br>');
+        let subject = '<div class="form-group col-md-4"> \
+                        <span>Subject</span> \
+                        <input class="subjects form-control" type="text" name="subject"></div>';
+
+        let subj_type = '<div class="form-group col-md-4"> \
+                        <span>Type</span> \
+                        <select name="select"><option value="lec">Lecture</option> \
+                        <option value="lab" selected>Practise</option></div>';
+
+        let hours = '<div class="form-group col-md-2">\
+                    <span>Hours</span> \
+                    <input type="number" class="form-control" name="subject_hours"><br></div>';
 
         $('#subject-container').append(subject,subj_type, hours);
 
@@ -15,9 +23,28 @@ $(document).ready(function(){
         });
         
     });
-
-    $('#submit').click(async (event) =>{
-        event.preventDefault();
+    // Validation here
+    $("#semester-form").validate({
+        rules: {
+            groupname: "required",
+            total_hours: "required",
+            subject: "required",
+            subject_hours: "required"
+        },
+        messages: {
+            groupname: "Please enter group name",
+            total_hours: "Please enter hours",
+            subject: "Please enter subject",
+            subject_hours: "Please enter valid hours"
+        },
+        submitHandler: function(form, event) { 
+            //event.preventDefault();
+            sendToServer();
+            return false;
+        }
+    });
+    async function sendToServer(){
+        
         let groupname = $('#groupname').val().trim();
         let total_hours = $('#total-hours').val().trim();
         let date_from = $('#date-from').val().trim();
@@ -56,7 +83,15 @@ $(document).ready(function(){
         }
 
         const response = await fetch('/create', options);
+        const content_type = response.headers.get('Content-Type');
+        if (content_type.search('json') != -1){
+            const data = await response.json();
+            $('#flash').show().text(data['flash'])
+        }else{
+            $('#flash').hide()
+        }
         
-    });
+
+    }
 
 });
