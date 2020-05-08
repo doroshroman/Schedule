@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, jsonify
+from flask import render_template, flash, redirect, url_for, request, jsonify, make_response
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy.exc import SQLAlchemyError
@@ -9,7 +9,6 @@ from app.forms import AddScheduleForm
 from app.forms import LoginForm
 from app.forms import SearchForm
 from app.models import *
-
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
@@ -125,3 +124,32 @@ def subjects():
 def page_not_found(error):
 	app.logger.error(f'Page not found: {request.path}')
 	return render_template('404.html'), 404
+
+@app.route('/create', methods=["GET", "POST"])
+def create():
+    # Creating schedule for one semester
+    schedule_meta = request.json
+    app.logger.info(schedule_meta)
+    if schedule_meta:
+        group = schedule_meta.get('groupname', None)
+        total_hours = schedule_meta.get('total_hours', 0)
+        date_from = schedule_meta.get('date_from', None)
+        date_to = schedule_meta.get('date_to', None)
+        subjects = schedule_meta.get('subjects', None)
+        
+        timetable = Timetable(group, total_hours, date_from, date_to, subjects)
+        try:
+            timetable.generate_random_timetable()
+            timetable.display_timetable()
+            
+        except utils.CannotCreateException as exp:
+            flash_msg = str(exp)
+            
+
+            return jsonify({
+                'flash': flash_msg
+            })
+
+    response = make_response(render_template('semester.html'))
+    response.headers['Content-type'] = 'text/html; charset=utf-8'
+    return response

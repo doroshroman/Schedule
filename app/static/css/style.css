@@ -23,3 +23,9 @@ input{
 .page-wrap {
     min-height: 100vh;
 }
+form .error {
+    color: #ff0000;
+}
+#flash {
+    display: none;
+}
