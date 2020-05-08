@@ -29,3 +29,18 @@ form .error {
 #flash {
     display: none;
 }
+
+.form-group{
+    float: left;
+    margin-left: 20px;
+}
+.btn-submit{
+    margin-top: 31px;
+    margin-left: 40px;
+    float: left;
+}
+h1{
+    margin: 20px;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
