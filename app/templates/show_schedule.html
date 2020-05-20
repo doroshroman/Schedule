@@ -35,11 +35,11 @@
         <h3> {{date}} </h3>
         <table class="table table-striped text-center form-group">
         {% for lesson in lessons %}
-        <tr>
+        <tr class="clickable" id="{{ lesson.id }}">
             <td> {{ lesson.order }}</td>
-            <td> 9:00 10:20  </td>
+            <td> {{ lesson.order | slot_start }} {{ lesson.order | slot_end }} </td>
             <td> {{lesson.teacher.name}} {{lesson.teacher.surname}} {{lesson.teacher.patronymic}}</td>
-            <td> {{lesson.subject.title}}  {{lesson.subject.subj_type}}</td>
+            <td> {{ lesson.subject.title }}  {{lesson.subject.subj_type}}</td>
         </tr>
         {% endfor %}
         </table>

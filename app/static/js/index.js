@@ -51,5 +51,38 @@ $(document).ready(function(){
         });
 
     }
+
+    $('.clickable').on("click" , (e) =>{
+        let self = $(e.target);
+        let closest = self.closest("tr")
+        let id = closest.attr("id");
+        
+        // Check if there are no buttons
+        if (closest.find("button").length == 0){
+            let edit_btn = "<td><button type='button' id='edit-lesson' class='btn btn-primary'>Edit</button></td>";
+            let delete_btn = "<td><button type='button' id='delete-lesson' class='btn btn-danger'>Delete</button></td>";
+            closest.append(edit_btn, delete_btn);
+            
+            $("#delete-lesson").on("click",async () => {
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(id)
+                }
+                const response = await fetch('/delete', options);
+                if(response.ok){
+                    closest.remove(); 
+                }
+            });
+        }
+        
+        
+    });
+    
+    
+
+
     
 }); 
