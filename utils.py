@@ -101,7 +101,10 @@ def slot_start(order):
         4: '13:30',
         5: '15:05' 
     }
-    return order_to_time[order]
+    if order in order_to_time:
+        return order_to_time[order]
+    else:
+        return order_to_time[1]
 
 @app.template_filter()
 def slot_end(order):
@@ -113,7 +116,10 @@ def slot_end(order):
         4: '14:50',
         5: '16:25'
     }
-    return order_to_time[order]
+    if order in order_to_time:
+        return order_to_time[order]
+    else:
+        return order_to_time[1]
 
 if __name__ == "__main__":
     pass

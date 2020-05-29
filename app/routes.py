@@ -169,5 +169,66 @@ def delete():
     if id:
         Lesson.query.filter_by(id=int(id)).delete()
         db.session.commit()
-        
-    return jsonify(success=True)
+        return jsonify(success=True)
+    else:
+        return jsonify(success=False)
+
+@app.route('/update/lesson/<int:lesson_id>', methods=["POST"])
+def update(lesson_id):
+    data = request.get_json()
+    message = None
+    success = True
+
+    if data and len(data):
+        # Read without validation
+        order = data['order']
+        auditory = data['auditory']
+        teacher_name = data['teacher']['name']
+        teacher_surname = data['teacher']['surname']
+        teacher_patronymic = data['teacher']['patronymic']
+        subject_title = data['subject']['title']
+        subject_type = data['subject']['subj_type']
+
+        teacher = None
+        subject = None
+        try:
+            # Get teacher record
+            teacher = utils.get_teacher(teacher_name, teacher_surname, teacher_patronymic)
+            
+            # Get subject record
+            subject = utils.get_subject(subject_title, subject_type)
+        except SQLAlchemyError as se:
+            app.logger.info(se)
+            success = False
+            message = "Incorrect teacher or subject!"
+
+        try:
+            lesson = Lesson.query.get(lesson_id)
+            # Update lesson
+            order = int(order)
+            lesson.order = order if order <= 5 else 5
+            lesson.auditory = auditory
+
+            lesson.teacher = teacher
+            lesson.subject = subject
+
+            db.session.commit()
+            
+            message = f'Successfully updated lesson with id: {lesson_id}' 
+            
+        except ValueError as ve:
+            app.logger.info(ve)
+            message = "Incorrect order!"
+            success = False
+
+        except SQLAlchemyError as se:
+            app.logger.info(se)
+            success = False
+            message = str(se)
+
+    return jsonify(success=success, message=message)
+
+@app.route('/lesson/<int:lesson_id>', methods=["GET"])
+def show_lesson(lesson_id):
+    lesson = Lesson.query.get(lesson_id)
+    return jsonify(lesson.as_dict())

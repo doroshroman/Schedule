@@ -30,6 +30,106 @@ function loadTeachers(){
     return teachers;
 };
 
+function getPostOptions(data){
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }
+    return options;
+}
+// Edit lesson
+async function editLesson(parent, id){
+
+    const response = await fetch('/lesson/' + id)
+    const lesson = await response.json();
+    
+    let order = lesson.order
+    let auditory = lesson.auditory
+    let teacher = lesson.teacher
+    let teacher_full = teacher.name + " " + teacher.surname + " " + teacher.patronymic; 
+    let subject = lesson.subject 
+
+    let row = "<tr class=clickable id=" + id + ">";
+    // Order
+    row += "<td>";
+    row += "<input id='order" + id + "' type='number' class='form-control' min=1 max=5 value=" + order + ">" ;
+    row += "</td>";
+
+    // Auditory
+    row += "<td>";
+    row += "<input id='auditory" + id + "' type='number' class='form-control' min=1 value=" + auditory + ">" ;
+    row += "</td>";
+
+    // Teacher
+    row += "<td>";
+    row += "<input id='teacher" + id + "' type='text' class='form-control' value='" + teacher_full + "'>"; 
+    row += "</td>";
+    
+    // Subject Name
+    row += "<td>";
+    row += "<input id='subject-title"+ id + "' type='text' class='form-control' value='" + subject.title + "'>";
+    row += "</td>";
+
+    // Subject type
+    row += "<td>";
+    row += "<select id='subject-type"+ id + "' class='form-control'>";
+    if(subject.subj_type == 'lec'){
+        row += "<option value='lec' selected>Lecture</option>";
+        row += "<option value='lab'>Practise</option>";
+    }else{
+        row += "<option value='lab' selected>Practise</option>";
+        row += "<option value='lec'>Lecture</option>";
+    }
+    
+    row += "</select>"
+    row += "<td>";
+
+    row += "<td><button type='button' id='update-lesson" + id + "' class='btn btn-primary'>Update</button></td>";
+
+    row += "</tr>";
+
+    parent.replaceWith(row);
+
+    // When updated was clicked
+    $('#update-lesson' + id).on('click', async ()=>{
+        // Read updated fields
+        const order =  $('#order' + id).val();
+        const auditory = $('#auditory' + id).val();
+        const teacher = $('#teacher' + id).val().split(' ');
+        const subject_title = $('#subject-title' + id).val();
+        const subject_type = $('#subject-type' + id).val();
+
+        const data = {
+            'order': order,
+            'auditory': auditory,
+            'teacher':{
+                'name': teacher[0],
+                'surname': teacher[1],
+                'patronymic': teacher[2]
+            },
+            'subject':{
+                'title': subject_title,
+                'subj_type': subject_type
+            }
+        }
+        const response = await fetch('/update/lesson/' + id, getPostOptions(data));
+        const resp_message = await response.json();
+        if(resp_message.success === true){
+            $('#flash-msg').show().text(resp_message['message']); 
+
+            setTimeout(() => { document.location.reload(true); }, 3000);
+            
+        }else{
+            $('#flash-msg').show().text(resp_message['message']); 
+        }
+        
+
+    });
+}
+
 $(document).ready(function(){
 
     let groups = loadGroups();
@@ -52,37 +152,33 @@ $(document).ready(function(){
 
     }
 
-    $('.clickable').on("click" , (e) =>{
+    $('.clickable').on("click" , async (e) =>{
         let self = $(e.target);
         let closest = self.closest("tr")
         let id = closest.attr("id");
-        
         // Check if there are no buttons
         if (closest.find("button").length == 0){
-            let edit_btn = "<td><button type='button' id='edit-lesson' class='btn btn-primary'>Edit</button></td>";
-            let delete_btn = "<td><button type='button' id='delete-lesson' class='btn btn-danger'>Delete</button></td>";
+            let edit_btn = "<td><button type='button' id='edit-lesson" + id + "' class='btn btn-primary'>Edit</button></td>";
+            let delete_btn = "<td><button type='button' id='delete-lesson" + id + "' class='btn btn-danger'>Delete</button></td>";
             closest.append(edit_btn, delete_btn);
-            
-            $("#delete-lesson").on("click",async () => {
-                const options = {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(id)
-                }
-                const response = await fetch('/delete', options);
+
+            $("#delete-lesson"+id).on("click", async () => {
+                const response = await fetch('/delete', getPostOptions(id));
                 if(response.ok){
                     closest.remove(); 
                 }
+            });
+
+            $("#edit-lesson" + id).on("click",() =>{
+                // Replace this element with form
+                editLesson(closest, id);
+                
             });
         }
         
         
     });
     
-    
-
 
     
 }); 
