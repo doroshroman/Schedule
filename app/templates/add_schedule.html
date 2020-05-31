@@ -73,6 +73,19 @@
         <p>
             {{ form.submit(class="btn btn-primary mb-2 pull-right") }}
         </p>
+        <table class="table table-striped table-sm text-center form-group">
+            <th>
+            Дублювати розклад для кожного 
+            {{form.day_of_week}}
+            З 
+            {{form.set_from}}
+            По
+            {{form.set_to}}
+            </th>
+            <th>
+            {{form.copy(class="btn btn-primary mb-2 pull-right")}}
+        </th>
+    </table>
         
     </form>
     <script type=text/javascript src="{{

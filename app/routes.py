@@ -34,7 +34,7 @@ def index():
             error = "Incorrect input data!"
 
     return render_template('show_schedule.html', form=form, day_schedules=lessons, error=error)
-
+'''
 @app.route('/add_schedule', methods=['GET', 'POST'])
 #@login_required
 def add_schedule():
@@ -46,6 +46,9 @@ def add_schedule():
         day = form.day.data
         PAIRS = 5
         group_record = None
+        day_sh = []
+        set_from= form.set_from.data
+        set_to = form.set_to.data
 
         try:
             group_record = utils.get_group_by_name(group)
@@ -55,6 +58,7 @@ def add_schedule():
             
         for i in range(PAIRS):
             lesson = utils.read_lesson_data(form, i+1)
+            app.logger.info(lesson)
             if utils.is_valid_lesson(lesson): 
                 # Parse field 
                 auditory = lesson["auditory"]
@@ -68,7 +72,6 @@ def add_schedule():
                     pair = Lesson(date=day, order=i+1, auditory=auditory, teacher=teacher, group=group_record, subject=subject)
                     db.session.add(pair)
                     db.session.commit()
-
                     return redirect(url_for('index'))
 
                 except SQLAlchemyError as e:
@@ -77,7 +80,7 @@ def add_schedule():
                     errors.append(e)
 
     return render_template('add_schedule.html', form=form, errors=errors)
-
+'''
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -153,3 +156,8 @@ def create():
     response = make_response(render_template('semester.html'))
     response.headers['Content-type'] = 'text/html; charset=utf-8'
     return response
+
+
+@app.route('/add', methods=["GET", "POST"])
+def add_shedule():
+    pass

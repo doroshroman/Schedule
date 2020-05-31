@@ -35,6 +35,15 @@ class AddScheduleForm(FlaskForm):
 
     submit = SubmitField('Add')
 
+    set_from = DateField('З', default = date.today)
+    set_to = DateField('По', default = date.today)
+    day_of_week = SelectField('Для', choices = [('Понеділка'), 
+      ('Вівторка'), ('Середи'), ('Четверга'), ('П\'ятниці'), ('Суботи'), ('Неділі')] )
+
+    copy = SubmitField('Дублювати')
+
+
+
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -48,3 +57,5 @@ class SearchForm(FlaskForm):
     teacher_name = StringField('Teacher')
 
     submit = SubmitField('Search')
+
+    
