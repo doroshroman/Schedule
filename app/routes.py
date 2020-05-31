@@ -133,26 +133,35 @@ def create():
     # Creating schedule for one semester
     schedule_meta = request.json
     app.logger.info(schedule_meta)
+    flash_msg = None
+
     if schedule_meta:
         group = schedule_meta.get('groupname', None)
-        total_hours = schedule_meta.get('total_hours', 0)
         date_from = schedule_meta.get('date_from', None)
         date_to = schedule_meta.get('date_to', None)
         subjects = schedule_meta.get('subjects', None)
         
-        timetable = Timetable(group, total_hours, date_from, date_to, subjects)
         try:
+            timetable = Timetable(group, date_from, date_to, subjects)
             timetable.generate_random_timetable()
             timetable.display_timetable()
-            
+            timetable.insert_into_db()
+
+        except ValueError as ve:
+            flash_msg = str(ve)
+
         except utils.CannotCreateException as exp:
             flash_msg = str(exp)
+
+        except SQLAlchemyError as sqle:
+            app.logger.info(sqle)
+            flash_msg = str(sqle)
             
-
-            return jsonify({
-                'flash': flash_msg
+    if flash_msg:
+        return jsonify({
+            'flash': flash_msg
             })
-
+    
     response = make_response(render_template('semester.html'))
     response.headers['Content-type'] = 'text/html; charset=utf-8'
     return response
@@ -161,3 +170,72 @@ def create():
 @app.route('/add', methods=["GET", "POST"])
 def add_shedule():
     pass
+@app.route('/delete', methods=["POST"])
+def delete():
+    id = request.json
+    if id:
+        Lesson.query.filter_by(id=int(id)).delete()
+        db.session.commit()
+        return jsonify(success=True)
+    else:
+        return jsonify(success=False)
+
+@app.route('/update/lesson/<int:lesson_id>', methods=["POST"])
+def update(lesson_id):
+    data = request.get_json()
+    message = None
+    success = True
+
+    if data and len(data):
+        # Read without validation
+        order = data['order']
+        auditory = data['auditory']
+        teacher_name = data['teacher']['name']
+        teacher_surname = data['teacher']['surname']
+        teacher_patronymic = data['teacher']['patronymic']
+        subject_title = data['subject']['title']
+        subject_type = data['subject']['subj_type']
+
+        teacher = None
+        subject = None
+        try:
+            # Get teacher record
+            teacher = utils.get_teacher(teacher_name, teacher_surname, teacher_patronymic)
+            
+            # Get subject record
+            subject = utils.get_subject(subject_title, subject_type)
+        except SQLAlchemyError as se:
+            app.logger.info(se)
+            success = False
+            message = "Incorrect teacher or subject!"
+
+        try:
+            lesson = Lesson.query.get(lesson_id)
+            # Update lesson
+            order = int(order)
+            lesson.order = order if order <= 5 else 5
+            lesson.auditory = auditory
+
+            lesson.teacher = teacher
+            lesson.subject = subject
+
+            db.session.commit()
+            
+            message = f'Successfully updated lesson with id: {lesson_id}' 
+            
+        except ValueError as ve:
+            app.logger.info(ve)
+            message = "Incorrect order!"
+            success = False
+
+        except SQLAlchemyError as se:
+            app.logger.info(se)
+            success = False
+            message = str(se)
+
+    return jsonify(success=success, message=message)
+
+@app.route('/lesson/<int:lesson_id>', methods=["GET"])
+def show_lesson(lesson_id):
+    lesson = Lesson.query.get(lesson_id)
+    return jsonify(lesson.as_dict())

@@ -1,12 +1,25 @@
 from builtins import range
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from flask import logging
 from app.models import *
 from app import app, db
 
 def count_days(date_start, date_end):
+    if date_start > date_end:
+        return -1
     return (date_end - date_start).days + 1
 
+def get_day_index(date, date_start, date_end):
+    # date - format datetime.date
+    date = datetime(date.year, date.month, date.day)
+    if (date > date_end or date < date_start):
+        return -1
+    else:
+        return (date - date_start).days  
+
+def convert_str_to_date(str_date, format):
+    return datetime.strptime(str_date, format)
+    
 def is_weekend(day):
     SATURDAY = 5
     SUNDAY = 6
@@ -73,8 +86,40 @@ def convert_lessons_to_dict(lessons):
             lessons_dict[key] = [lesson]
     return lessons_dict
 
+# Exceptions
 class CannotCreateException(Exception):
     pass
+
+# Filters
+@app.template_filter()
+def slot_start(order):
+    """Convert order to start time"""
+    order_to_time = {
+        1: '08:30',
+        2: '10:05',
+        3: '11:55',
+        4: '13:30',
+        5: '15:05' 
+    }
+    if order in order_to_time:
+        return order_to_time[order]
+    else:
+        return order_to_time[1]
+
+@app.template_filter()
+def slot_end(order):
+    """Convert order to end time"""
+    order_to_time = {
+        1: '09:50',
+        2: '11:25',
+        3: '13:15',
+        4: '14:50',
+        5: '16:25'
+    }
+    if order in order_to_time:
+        return order_to_time[order]
+    else:
+        return order_to_time[1]
 
 if __name__ == "__main__":
     pass

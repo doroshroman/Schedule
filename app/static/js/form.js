@@ -27,13 +27,11 @@ $(document).ready(function(){
     $("#semester-form").validate({
         rules: {
             groupname: "required",
-            total_hours: "required",
             subject: "required",
             subject_hours: "required"
         },
         messages: {
             groupname: "Please enter group name",
-            total_hours: "Please enter hours",
             subject: "Please enter subject",
             subject_hours: "Please enter valid hours"
         },
@@ -46,7 +44,6 @@ $(document).ready(function(){
     async function sendToServer(){
         
         let groupname = $('#groupname').val().trim();
-        let total_hours = $('#total-hours').val().trim();
         let date_from = $('#date-from').val().trim();
         let date_to = $('#date-to').val().trim();
         let inputs = $('#subject-container').find("input, select");
@@ -54,7 +51,6 @@ $(document).ready(function(){
         
         let schedule = {
             'groupname': groupname,
-            'total_hours': total_hours,
             'date_from': date_from,
             'date_to': date_to
         };

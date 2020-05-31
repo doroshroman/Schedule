@@ -29,3 +29,6 @@ form .error {
 #flash {
     display: none;
 }
+#flash-msg{
+    display: none;
+}
