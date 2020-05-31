@@ -34,54 +34,104 @@ def index():
             error = "Incorrect input data!"
 
     return render_template('show_schedule.html', form=form, day_schedules=lessons, error=error)
-'''
+
 @app.route('/add_schedule', methods=['GET', 'POST'])
 #@login_required
-def add_schedule():
-    form = AddScheduleForm()
-    errors = []
-    if form.validate_on_submit():
-        # Grab data from form
-        group = form.groupname.data
-        day = form.day.data
-        PAIRS = 5
-        group_record = None
-        day_sh = []
-        set_from= form.set_from.data
-        set_to = form.set_to.data
+def add():
+    data = request.get_json()
+    message = None
+    success = True
+
+    if data and len(data):
+    
+        teacher = None
+        subject = None
+        
+        try:
+            group = data['groupname']
+            date = data['date']
+            order = data['order']
+            auditory = data['auditory']
+            teacher_name = data['teacher']['name']
+            teacher_surname = data['teacher']['surname']
+            teacher_patronymic = data['teacher']['patronymic']
+            subject_title = data['subject']['title']
+            subject_type = data['subject']['subj_type']
+            # Get teacher record
+            group = utils.get_group_by_name(group)
+            teacher = utils.get_teacher(teacher_name, teacher_surname, teacher_patronymic)
+            
+            # Get subject record
+            subject = utils.get_subject(subject_title, subject_type)
+        except SQLAlchemyError as se:
+            app.logger.info(se)
+            success = False
+            message = "Incorrect teacher or subject!"
+        
+        except KeyError as ke:
+            pass
 
         try:
-            group_record = utils.get_group_by_name(group)
-        except SQLAlchemyError as e:
-            e = "Group not found"
-            errors.append(e)
+            date = utils.convert_str_to_date(date, '%Y-%m-%d')
+            order = int(order)
+            lesson = Lesson(date=date, order=order, auditory=auditory, teacher=teacher, group=group, subject=subject)
+
+            db.session.add(lesson)
+            db.session.commit()
             
-        for i in range(PAIRS):
-            lesson = utils.read_lesson_data(form, i+1)
-            app.logger.info(lesson)
-            if utils.is_valid_lesson(lesson): 
-                # Parse field 
-                auditory = lesson["auditory"]
-                name, surname, patronymic = lesson["teacher"].split()
-                title = lesson["subject"]
-                subj_type = lesson["subject_type"]
+            
+        except ValueError as ve:
+            app.logger.info(ve)
+            message = "Incorrect order!"
+            success = False
 
-                try:
-                    teacher = utils.get_teacher(name, surname, patronymic)
-                    subject = utils.get_subject(title, subj_type)
-                    pair = Lesson(date=day, order=i+1, auditory=auditory, teacher=teacher, group=group_record, subject=subject)
-                    db.session.add(pair)
-                    db.session.commit()
-                    return redirect(url_for('index'))
+        except SQLAlchemyError as se:
+            app.logger.info(se)
+            success = False
+            message = str(se)
 
-                except SQLAlchemyError as e:
-                    app.logger.error(e)
-                    e = f"Some fields are incorrect in {i+1} row!"
-                    errors.append(e)
+        return jsonify(success=success, message=message)
+    else:
+        return render_template('add_schedule.html')
 
-    return render_template('add_schedule.html', form=form, errors=errors)
-'''
+@app.route('/copy_schedule', methods=['POST'])
+def copy():
+    data = request.get_json()
+    if data and len(data):
+        group = data['groupname']
+        date = data['date']
+        date_from = data['date_from']
+        date_to = data['date_to']
+        week_type = data['week_type']
+        day_type = data['day_type']
+        try:
+            date = utils.convert_str_to_date(date,'%Y-%m-%d')
+            date_from = utils.convert_str_to_date(date_from,'%Y-%m-%d')
+            date_to = utils.convert_str_to_date(date_to,'%Y-%m-%d')
 
+            group = utils.get_group_by_name(group)
+            lessons = utils.get_lessons(group, date)
+            days = utils.build_days_range(date_from, date_to)
+            
+            step = 7
+            if week_type == 'odd':
+                step = 14
+
+            first_day_index = -1
+
+            for i, day in enumerate(days):
+                if day_type == day.strftime("%A"):
+                    first_day_index = i
+                    break
+            if first_day_index != -1:
+                for i in range(first_day_index, len(days), step ):
+                    for lesson in lessons:
+                        utils.copy_lesson(lesson, days[i])
+                        
+        except ValueError as ve:
+            app.logger.info(ve)
+        
+    return "sex"
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -239,3 +289,4 @@ def update(lesson_id):
 def show_lesson(lesson_id):
     lesson = Lesson.query.get(lesson_id)
     return jsonify(lesson.as_dict())
+

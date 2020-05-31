@@ -3,6 +3,13 @@ from datetime import date, timedelta, datetime
 from flask import logging
 from app.models import *
 from app import app, db
+from sqlalchemy.orm.session import make_transient
+
+def copy_lesson(lesson, date):
+    lesson = Lesson(date=date, order=lesson.order, auditory=lesson.auditory, teacher=lesson.teacher, group=lesson.group, subject=lesson.subject)
+
+    db.session.add(lesson)
+    db.session.commit()
 
 def count_days(date_start, date_end):
     if date_start > date_end:
@@ -19,18 +26,12 @@ def get_day_index(date, date_start, date_end):
 
 def convert_str_to_date(str_date, format):
     return datetime.strptime(str_date, format)
-    
-def is_weekend(day):
-    SATURDAY = 5
-    SUNDAY = 6
-    return (day.weekday() == SATURDAY or day.weekday() == SUNDAY)  
 
 def build_days_range(date_start, date_end):
     count = count_days(date_start, date_end)
     days = []
     for i in range(count):
-        if not is_weekend(date_start):
-            days.append(date_start)
+        days.append(date_start)
         date_start = date_start + timedelta(1)
     return days
 

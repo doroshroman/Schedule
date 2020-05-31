@@ -32,3 +32,6 @@ form .error {
 #flash-msg{
     display: none;
 }
+#copyform{
+    display: none;
+}
