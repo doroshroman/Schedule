@@ -49,12 +49,17 @@ $(document).ready(function(){
                 },
                 body: JSON.stringify(data)
             }
-            const response = await fetch('/add_schedule', options)
+            const response = await fetch('/add_schedule', options);
             const content_type = response.headers.get('Content-Type');
             if (content_type.search('json') != -1){
-            const data = await response.json();
+                const data = await response.json();
                 if (data.success == true){
-                    $('#copyform').show()
+                    $('#flash-msg').hide();
+                    $('#copyform').show();
+                }else{
+                    if (data.message){
+                        $('#flash-msg').show().text(data.message);
+                    }
                 }
         }
     }

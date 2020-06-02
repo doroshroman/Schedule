@@ -156,6 +156,7 @@ $(document).ready(function(){
         let self = $(e.target);
         let closest = self.closest("tr")
         let id = closest.attr("id");
+        
         // Check if there are no buttons
         let buttons = closest.find("button")
         if (buttons.length == 0){
@@ -166,7 +167,19 @@ $(document).ready(function(){
             $("#delete-lesson" + id).on("click", async () => {
                 const response = await fetch('/delete', getPostOptions(id));
                 if(response.ok){
-                    closest.remove(); 
+                    
+                    let lessonsInTable = closest.parent().find('tr').length
+                    // Last parent
+                    if (lessonsInTable == 1){
+                        // Remove all day
+                        closest.parents('.day').remove();
+                    }else{
+                        // Remove only one lesson
+                        closest.remove();
+                    }
+                    
+                }else{
+                    $('#flash-msg').show().text("Cannot delete lesson!");
                 }
             });
 

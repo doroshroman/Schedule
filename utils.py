@@ -73,7 +73,7 @@ def get_lessons(group, date):
     return lessons_per_day 
 
 def get_lessons_range(group, date_from, date_to):
-    lessons_range = db.session.query(Lesson).filter_by(group=group).filter(Lesson.date.between(date_from, date_to)).all()
+    lessons_range = db.session.query(Lesson).filter_by(group=group).filter(Lesson.date.between(date_from, date_to)).order_by(Lesson.date).order_by(Lesson.order).all()
     lessons = utils.convert_lessons_to_dict(lessons_range)
     return lessons
 

@@ -43,10 +43,6 @@ def add():
     success = True
 
     if data and len(data):
-    
-        teacher = None
-        subject = None
-        
         try:
             group = data['groupname']
             date = data['date']
@@ -63,15 +59,7 @@ def add():
             
             # Get subject record
             subject = utils.get_subject(subject_title, subject_type)
-        except SQLAlchemyError as se:
-            app.logger.info(se)
-            success = False
-            message = "Incorrect teacher or subject!"
         
-        except KeyError as ke:
-            pass
-
-        try:
             date = utils.convert_str_to_date(date, '%Y-%m-%d')
             order = int(order)
             lesson = Lesson(date=date, order=order, auditory=auditory, teacher=teacher, group=group, subject=subject)
@@ -84,11 +72,13 @@ def add():
             app.logger.info(ve)
             message = "Incorrect order!"
             success = False
-
+        except KeyError as ke:
+            app.logger.info("Caught empty lesson")
+            success = False
         except SQLAlchemyError as se:
             app.logger.info(se)
             success = False
-            message = str(se)
+            message = "Incorrect data or busy lesson for this time"
 
         return jsonify(success=success, message=message)
     else:
@@ -217,9 +207,6 @@ def create():
     return response
 
 
-@app.route('/add', methods=["GET", "POST"])
-def add_shedule():
-    pass
 @app.route('/delete', methods=["POST"])
 def delete():
     id = request.json
@@ -233,9 +220,7 @@ def delete():
 @app.route('/update/lesson/<int:lesson_id>', methods=["POST"])
 def update(lesson_id):
     data = request.get_json()
-    message = None
-    success = True
-
+    
     if data and len(data):
         # Read without validation
         order = data['order']
@@ -256,9 +241,9 @@ def update(lesson_id):
             subject = utils.get_subject(subject_title, subject_type)
         except SQLAlchemyError as se:
             app.logger.info(se)
-            success = False
             message = "Incorrect teacher or subject!"
-
+            return jsonify(success=False, message=message)
+        
         try:
             lesson = Lesson.query.get(lesson_id)
             # Update lesson
@@ -270,20 +255,13 @@ def update(lesson_id):
             lesson.subject = subject
 
             db.session.commit()
-            
-            message = f'Successfully updated lesson with id: {lesson_id}' 
-            
-        except ValueError as ve:
-            app.logger.info(ve)
-            message = "Incorrect order!"
-            success = False
 
-        except SQLAlchemyError as se:
-            app.logger.info(se)
-            success = False
-            message = str(se)
+        except (ValueError, SQLAlchemyError):
+            message = "Busy auditory or order"
+            return jsonify(success=False, message=message)
 
-    return jsonify(success=success, message=message)
+    message = f'Successfully updated lesson with id: {lesson_id}' 
+    return jsonify(success=True, message=message)
 
 @app.route('/lesson/<int:lesson_id>', methods=["GET"])
 def show_lesson(lesson_id):
