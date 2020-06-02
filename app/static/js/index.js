@@ -157,12 +157,13 @@ $(document).ready(function(){
         let closest = self.closest("tr")
         let id = closest.attr("id");
         // Check if there are no buttons
-        if (closest.find("button").length == 0){
+        let buttons = closest.find("button")
+        if (buttons.length == 0){
             let edit_btn = "<td><button type='button' id='edit-lesson" + id + "' class='btn btn-primary'>Edit</button></td>";
             let delete_btn = "<td><button type='button' id='delete-lesson" + id + "' class='btn btn-danger'>Delete</button></td>";
             closest.append(edit_btn, delete_btn);
 
-            $("#delete-lesson"+id).on("click", async () => {
+            $("#delete-lesson" + id).on("click", async () => {
                 const response = await fetch('/delete', getPostOptions(id));
                 if(response.ok){
                     closest.remove(); 
@@ -174,6 +175,10 @@ $(document).ready(function(){
                 editLesson(closest, id);
                 
             });
+        }else{
+            for(let i = 0;i < buttons.length; i++){
+                buttons[i].closest("td").remove();
+            }
         }
         
         
