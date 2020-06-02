@@ -1,36 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="d-flex flex-row-reverse">
+    <a href='/logout' class="btn btn-danger mr-lg-2">Logout</a>
+    <a href='/add_schedule' class="btn btn-success mr-lg-2">Add Schedule</a>
+    </div>
     <h1 class="h1 text-center"> Schedule</h1>
-    <section id="holder">
-    <form id="add-form" action="{{ url_for('index') }}" method="post" novalidate >
+    <div class="container">
+    <form class="form-row" id="add-form" action="{{ url_for('index4update') }}" method="post" novalidate >
         {{ form.hidden_tag() }}
-            <div class="form-group">
-                {{ form.groupname.label }}<br>
-                {{ form.groupname(size=12, class="form-control")}}<br>
-                {% for error in form.groupname.errors %}
-                <span style="color: red;">{{ error }}</span>
-                {% endfor %}
-            </div>
-            <div class="form-group">
-                {{ form.from_day.label }}<br>
-                {{ form.from_day(class="form-control") }}<br>
-                {% for error in form.from_day.errors %}
-                <span style="color: red;">{{ error }}</span>
-                {% endfor %}
-            </div>
-            <div class="form-group">
-                {{ form.to_day.label }}<br>
-                {{ form.to_day(class="form-control") }}<br>
-                {% for error in form.to_day.errors %}
-                <span style="color: red;">{{ error }}</span>
-                {% endfor %}
-            </div>
-        <div class="btn-submit">
-            {{ form.submit(class="btn btn-success") }}
-        </div>
-        </form>
-        </section>
+        {% include 'search_form.html' %}
+    </form>
+    </div>
     {% for date, lessons in day_schedules.items() %}
         <div class="day">
         <h3 class="lead">{{date}}</h3>
@@ -58,8 +39,8 @@
             </table>
             </div>
     {% endfor %}
+    
 
     <script type=text/javascript src="{{
         url_for('static', filename='js/index.js') }}"></script>
-    
 {% endblock %}

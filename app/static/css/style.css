@@ -32,15 +32,23 @@ form .error {
 #flash {
     display: none;
 }
-
-.form-group{
-    float: left;
-    margin-left: 20px;
+#flash-msg{
+    display: none;
+}
+#copyform{
+    display: none;
 }
 .btn-submit{
     margin-top: 51px;
     margin-left: 40px;
     float: left;
+}
+.container{
+    padding: 0px;
+    margin: 20px;
+}
+.day{
+    margin: 20px;
 }
 h1{
     margin: 20px;

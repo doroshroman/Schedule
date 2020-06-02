@@ -10,9 +10,9 @@ from app.forms import LoginForm
 from app.forms import SearchForm
 from app.models import *
 
-@app.route('/')
-@app.route('/index', methods=['GET', 'POST'])
-def index():
+@app.route('/index4update', methods=['GET', 'POST'])
+@login_required
+def index4update():
     form = SearchForm()
     error = None
     from_day = None
@@ -33,7 +33,33 @@ def index():
         except SQLAlchemyError as e:
             error = "Incorrect input data!"
 
-    return render_template('show_schedule.html', form=form, day_schedules=lessons, error=error)
+    return render_template('admin_index.html', form=form, day_schedules=lessons, error=error)
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    form = SearchForm()
+    error = None
+    from_day = None
+    to_day = None 
+    teacher_name = None
+    lessons = {}
+    
+    if form.validate_on_submit():
+        
+        group = form.groupname.data
+        from_day = form.from_day.data
+        to_day = form.to_day.data
+        teacher_name = form.teacher_name.data
+
+        try:
+            group_record = utils.get_group_by_name(group)
+            lessons = utils.get_lessons_range(group_record, from_day, to_day)
+            app.logger.info(lessons)
+        except SQLAlchemyError as e:
+            error = "Incorrect input data!"
+
+    return render_template('index.html', form=form, day_schedules=lessons, error=error)
+
 
 @app.route('/add_schedule', methods=['GET', 'POST'])
 @login_required
@@ -121,7 +147,7 @@ def copy():
         except ValueError as ve:
             app.logger.info(ve)
         
-    return "sex"
+    return jsonify(success=True)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -208,6 +234,7 @@ def create():
 
 
 @app.route('/delete', methods=["POST"])
+@login_required
 def delete():
     id = request.json
     if id:
@@ -218,6 +245,7 @@ def delete():
         return jsonify(success=False)
 
 @app.route('/update/lesson/<int:lesson_id>', methods=["POST"])
+@login_required
 def update(lesson_id):
     data = request.get_json()
     
