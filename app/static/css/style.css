@@ -1,3 +1,6 @@
+*{
+    margin-top: 10px;
+}
 .btn-primary {
     color: #fff;
     background-color: #007bff;
@@ -28,4 +31,51 @@ form .error {
 }
 #flash {
     display: none;
+}
+#flash-msg{
+    display: none;
+}
+#copyform{
+    display: none;
+}
+.btn-submit{
+    margin-top: 51px;
+    margin-left: 40px;
+    float: left;
+}
+.container{
+    padding: 0px;
+    margin: 20px;
+}
+.day{
+    margin: 20px;
+}
+h1{
+    margin: 20px;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
+.remember{
+    margin-left: auto;
+    margin-right: auto;
+/*     text-align: center; */
+    width: 150px;
+    position: relative;
+/*     margin: auto; */
+}
+#login #remember_me{
+/*     position: absolute; */
+    float: left;
+    width: 25px;
+}
+#login .remember_label{
+    float: left;
+    margin-left: 10px;
+/*     position: absolute; */
+/*     text-align: center; */
+/*     left: 1px; */
+}
+#login .button{
+    margin-top: 71px;
+    clear:both
 }

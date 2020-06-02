@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="d-flex flex-row-reverse">
+    <a href='/logout' class="btn btn-danger mr-lg-2">Logout</a>
+    <a href='/add_schedule' class="btn btn-success mr-lg-2">Add Schedule</a>
+    </div>
+    <h1 class="h1 text-center"> Schedule</h1>
+    <div class="container">
+    <form class="form-row" id="add-form" action="{{ url_for('index4update') }}" method="post" novalidate >
+        {{ form.hidden_tag() }}
+        {% include 'search_form.html' %}
+    </form>
+    </div>
+    {% for date, lessons in day_schedules.items() %}
+        <div class="day">
+        <h3 class="lead">{{date}}</h3>
+            <table class="table table-striped text-center form-group">
+            <thead>
+            <tr>
+                <th>Order</th>
+                <th>Auditory</th>
+                <th>Time</th>
+                <th>Teacher</th>
+                <th>Lesson</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for lesson in lessons %}
+            <tr class="clickable" id="{{ lesson.id }}">
+                <td> {{ lesson.order }}</td>
+                <td>{{ lesson.auditory }}</td>
+                <td> {{ lesson.order | slot_start }} {{ lesson.order | slot_end }} </td>
+                <td> {{lesson.teacher.name}} {{lesson.teacher.surname}} {{lesson.teacher.patronymic}}</td>
+                <td> {{ lesson.subject.title }}  {{lesson.subject.subj_type}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            </div>
+    {% endfor %}
+    
+
+    <script type=text/javascript src="{{
+        url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

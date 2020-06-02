@@ -1,23 +1,37 @@
 from builtins import range
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from flask import logging
 from app.models import *
 from app import app, db
+from sqlalchemy.orm.session import make_transient
+
+def copy_lesson(lesson, date):
+    lesson = Lesson(date=date, order=lesson.order, auditory=lesson.auditory, teacher=lesson.teacher, group=lesson.group, subject=lesson.subject)
+
+    db.session.add(lesson)
+    db.session.commit()
 
 def count_days(date_start, date_end):
+    if date_start > date_end:
+        return -1
     return (date_end - date_start).days + 1
 
-def is_weekend(day):
-    SATURDAY = 5
-    SUNDAY = 6
-    return (day.weekday() == SATURDAY or day.weekday() == SUNDAY)  
+def get_day_index(date, date_start, date_end):
+    # date - format datetime.date
+    date = datetime(date.year, date.month, date.day)
+    if (date > date_end or date < date_start):
+        return -1
+    else:
+        return (date - date_start).days  
+
+def convert_str_to_date(str_date, format):
+    return datetime.strptime(str_date, format)
 
 def build_days_range(date_start, date_end):
     count = count_days(date_start, date_end)
     days = []
     for i in range(count):
-        if not is_weekend(date_start):
-            days.append(date_start)
+        days.append(date_start)
         date_start = date_start + timedelta(1)
     return days
 
@@ -59,7 +73,7 @@ def get_lessons(group, date):
     return lessons_per_day 
 
 def get_lessons_range(group, date_from, date_to):
-    lessons_range = db.session.query(Lesson).filter_by(group=group).filter(Lesson.date.between(date_from, date_to)).all()
+    lessons_range = db.session.query(Lesson).filter_by(group=group).filter(Lesson.date.between(date_from, date_to)).order_by(Lesson.date).order_by(Lesson.order).all()
     lessons = utils.convert_lessons_to_dict(lessons_range)
     return lessons
 
@@ -73,8 +87,40 @@ def convert_lessons_to_dict(lessons):
             lessons_dict[key] = [lesson]
     return lessons_dict
 
+# Exceptions
 class CannotCreateException(Exception):
     pass
+
+# Filters
+@app.template_filter()
+def slot_start(order):
+    """Convert order to start time"""
+    order_to_time = {
+        1: '08:30',
+        2: '10:05',
+        3: '11:55',
+        4: '13:30',
+        5: '15:05' 
+    }
+    if order in order_to_time:
+        return order_to_time[order]
+    else:
+        return order_to_time[1]
+
+@app.template_filter()
+def slot_end(order):
+    """Convert order to end time"""
+    order_to_time = {
+        1: '09:50',
+        2: '11:25',
+        3: '13:15',
+        4: '14:50',
+        5: '16:25'
+    }
+    if order in order_to_time:
+        return order_to_time[order]
+    else:
+        return order_to_time[1]
 
 if __name__ == "__main__":
     pass
