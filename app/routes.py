@@ -36,7 +36,7 @@ def index():
     return render_template('show_schedule.html', form=form, day_schedules=lessons, error=error)
 
 @app.route('/add_schedule', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def add():
     data = request.get_json()
     message = None

@@ -1,65 +1,50 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <br><h1 class="h1 text-center"> Schedule</h1><br>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div id="flash-msg" class="alert alert-danger col-4" role="alert">
-            </div>
-        </div>
-    </div>
+    <h1 class="h1 text-center"> Schedule</h1>
+    <section id="holder">
     <form id="add-form" action="{{ url_for('index') }}" method="post" novalidate >
         {{ form.hidden_tag() }}
-        <div class="form-row ml-2"> 
-            <div class="form-group col-md-2">
+            <div class="form-group">
                 {{ form.groupname.label }}<br>
                 {{ form.groupname(size=12, class="form-control")}}<br>
                 {% for error in form.groupname.errors %}
                 <span style="color: red;">{{ error }}</span>
                 {% endfor %}
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group">
                 {{ form.from_day.label }}<br>
                 {{ form.from_day(class="form-control") }}<br>
                 {% for error in form.from_day.errors %}
                 <span style="color: red;">{{ error }}</span>
                 {% endfor %}
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group">
                 {{ form.to_day.label }}<br>
                 {{ form.to_day(class="form-control") }}<br>
                 {% for error in form.to_day.errors %}
                 <span style="color: red;">{{ error }}</span>
                 {% endfor %}
             </div>
-        </div>
-        <div class="col-md-6">
+        <div class="btn-submit">
             {{ form.submit(class="btn btn-success") }}
         </div>
         </form>
-    <div class="container-fluid">
+        </section>
     {% for date, lessons in day_schedules.items() %}
-        <h3 class="lead"> {{date}} </h3>
+        <h3> {{date}} </h3>
         <table class="table table-striped text-center form-group">
-        <tr>
-            <th>Order</th>
-            <th>Auditory</th>
-            <th>Time</th>
-            <th>Teacher</th>
-            <th>Lesson</th>
-        </tr>
         {% for lesson in lessons %}
-        <tr class="clickable" id="{{ lesson.id }}">
+        <tr>
             <td> {{ lesson.order }}</td>
-            <td>{{ lesson.auditory }}</td>
-            <td> {{ lesson.order | slot_start }} {{ lesson.order | slot_end }} </td>
+            <td> 9:00 10:20  </td>
             <td> {{lesson.teacher.name}} {{lesson.teacher.surname}} {{lesson.teacher.patronymic}}</td>
-            <td> {{ lesson.subject.title }}  {{lesson.subject.subj_type}}</td>
+            <td> {{lesson.subject.title}}  {{lesson.subject.subj_type}}</td>
         </tr>
         {% endfor %}
         </table>
     {% endfor %}
-    </div>
+
     <script type=text/javascript src="{{
         url_for('static', filename='js/index.js') }}"></script>
     
