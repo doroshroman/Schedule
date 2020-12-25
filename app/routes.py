@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from datetime import date, timedelta
 from app import app
 from app import utils
+from app import db
 from app.forms import AddScheduleForm
 from app.forms import LoginForm
 from app.forms import SearchForm
@@ -28,7 +29,7 @@ def index4update():
         teacher = form.teacher.data
 
         try:
-            group_record = utils.get_group_by_name(group)
+            group_record = Group.query.filter_by(name=group).first()
             lessons = utils.get_lessons_range(group_record, from_day, to_day)
             app.logger.info(lessons)
         except SQLAlchemyError as e:
@@ -62,6 +63,7 @@ def index():
 @login_required
 def add_schedule():
     data = request.get_json()
+    print(data)
     message = None
     success = True
 
@@ -76,11 +78,10 @@ def add_schedule():
             teacher_patronymic = data['teacher']['patronymic']
             subject_title = data['subject']['title']
             subject_type = data['subject']['subj_type']
-            # Get teacher record
-            group = utils.get_group_by_name(group)
-            teacher = utils.get_teacher(teacher, teacher_surname, teacher_patronymic)
             
-            # Get subject record
+
+            group = Group.query.filter_by(name=group).first()
+            teacher = utils.get_teacher(teacher, teacher_surname, teacher_patronymic)
             subject = utils.get_subject(subject_title, subject_type)
         
             date = utils.convert_str_to_date(date, '%Y-%m-%d')
@@ -124,8 +125,9 @@ def copy():
             date_from = utils.convert_str_to_date(date_from,'%Y-%m-%d')
             date_to = utils.convert_str_to_date(date_to,'%Y-%m-%d')
 
-            group = utils.get_group_by_name(group)
+            group = Group.query.filter_by(name=group).first()
             lessons = utils.get_lessons(group, date)
+            print(lessons)
             days = utils.build_days_range(date_from, date_to)
             
             step = 7
@@ -139,7 +141,7 @@ def copy():
                     first_day_index = i
                     break
             if first_day_index != -1:
-                for i in range(first_day_index, len(days), step ):
+                for i in range(first_day_index, len(days), step):
                     for lesson in lessons:
                         utils.copy_lesson(lesson, days[i])
                         

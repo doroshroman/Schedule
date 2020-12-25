@@ -24,7 +24,7 @@ def get_day_index(date, date_start, date_end):
         return (date - date_start).days  
 
 def convert_str_to_date(str_date, format):
-    return datetime.strptime(str_date, format)
+    return datetime.strptime(str_date, format).date()
 
 def build_days_range(date_start, date_end):
     count = count_days(date_start, date_end)
@@ -54,9 +54,6 @@ def get_teacher(name, surname, patronymic):
                         Teacher.patronymic.like(patronymic)).one()
     return teacher
     
-def get_random_teacher():
-    index = random.randrange(0, db.session.query(Teacher).count())
-    return db.session.query(Teacher)[index] 
 
 def get_subject(title, subj_type):
     subj_record = db.session.query(Subject).filter(
@@ -66,7 +63,8 @@ def get_subject(title, subj_type):
 
    
 def get_lessons(group, date):
-    lessons_per_day = db.session.query(Lesson).filter_by(group=group, date=date).order_by(Lesson.order).all()
+    print(date)
+    lessons_per_day = Lesson.query.filter_by(group=group, date=date).order_by(Lesson.order).all()
     return lessons_per_day 
 
 def get_lessons_range(group, date_from, date_to):

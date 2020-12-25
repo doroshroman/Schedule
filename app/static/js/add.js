@@ -58,7 +58,6 @@ $(document).ready(function(){
                     $('#copyform').show();
                 }else{
                     if (data.message){
-                        console.log('Here');
                         $('#flash-msg').show().text(data.message);
                     }
                 }
@@ -90,6 +89,6 @@ $(document).ready(function(){
             body: JSON.stringify(copyData)
         }
         const response = await fetch('/copy_schedule/', options)
-
+        console.log(response);
     })
 })
