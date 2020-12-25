@@ -20,7 +20,7 @@ $(document).ready(function(){
             e.preventDefault();
             groupName = $('#groupname').val().trim();
             date = $('#date').val().trim();
-        for (let i=0;i<maxPairs; i++){
+        for (let i=0;i < maxPairs; i++){
             let order = i+1;
             let auditory = $('#auditory'+ (i+1)).val().trim();
             let teacher = $('#teacher'+ (i+1)).val().split(' ');
@@ -49,15 +49,16 @@ $(document).ready(function(){
                 },
                 body: JSON.stringify(data)
             }
-            const response = await fetch('/add_schedule', options);
+            const response = await fetch('/add_schedule/', options);
             const content_type = response.headers.get('Content-Type');
             if (content_type.search('json') != -1){
                 const data = await response.json();
-                if (data.success == true){
+                if (data.success === true){
                     $('#flash-msg').hide();
                     $('#copyform').show();
                 }else{
                     if (data.message){
+                        console.log('Here');
                         $('#flash-msg').show().text(data.message);
                     }
                 }
@@ -88,7 +89,7 @@ $(document).ready(function(){
             },
             body: JSON.stringify(copyData)
         }
-        const response = await fetch('/copy_schedule', options)
+        const response = await fetch('/copy_schedule/', options)
 
     })
 })

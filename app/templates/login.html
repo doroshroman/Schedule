@@ -1,21 +1,19 @@
 {% extends "base.html" %}
 
-    {% block link %}
-    <link rel="stylesheet" type = "text/css" href="{{
-        url_for('static', filename='css/style.css') }}">
-    <title>Вхід в систему</title>
+    {% block title %}
+        <title>Login</title>
     {% endblock %}
 
 {% block content %}
     <div id="login">
-        <h1 class="text-center">Sign In</h1>
+        <p class="h1 text-center">Sign In</p>
         <form class="text-center" action="" method="post" novalidate>
             {{ form.hidden_tag() }}
             <p>
                 {{ form.username.label }}<br>
                 {{ form.username(size=32) }}<br>
                 {% for error in form.username.errors %}
-                    <span style = "color:red;">[{{error}}]</span>
+                    <span style = "color:red;">{{error}}</span>
                 {% endfor %}
             </p>
 
@@ -23,7 +21,7 @@
                 {{ form.password.label }}<br>
                 {{ form.password(size=32) }}<br>
                 {% for error in form.password.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <span style="color: red;">{{ error }}</span>
                 {% endfor %}
             </p>
             <p class="remember">{{ form.remember_me() }} {{ form.remember_me.label(class="remember_label") }}</p>

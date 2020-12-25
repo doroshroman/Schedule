@@ -50,11 +50,12 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
+
 class SearchForm(FlaskForm):
     groupname = StringField('Group Name', validators=[DataRequired()])
     from_day = DateField('Date', default=date.today)
     to_day = DateField('Date', default=date.today)
-    teacher_name = StringField('Teacher')
+    teacher = StringField('Teacher')
 
     submit = SubmitField('Search')
 

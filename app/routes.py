@@ -3,28 +3,29 @@ from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import date, timedelta
-import utils
 from app import app
+from app import utils
 from app.forms import AddScheduleForm
 from app.forms import LoginForm
 from app.forms import SearchForm
-from app.models import *
+from app.models import Teacher, Group, Lesson, Subject, Administrator
 
-@app.route('/index4update', methods=['GET', 'POST'])
+
+@app.route('/index4update/', methods=['GET', 'POST'])
 @login_required
 def index4update():
     form = SearchForm()
     error = None
     from_day = None
     to_day = None 
-    teacher_name = None
+    teacher = None
     lessons = {}
     
     if form.validate_on_submit():
         group = form.groupname.data
         from_day = form.from_day.data
         to_day = form.to_day.data
-        teacher_name = form.teacher_name.data
+        teacher = form.teacher.data
 
         try:
             group_record = utils.get_group_by_name(group)
@@ -38,32 +39,28 @@ def index4update():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = SearchForm()
-    error = None
-    from_day = None
-    to_day = None 
-    teacher_name = None
+    message = None
     lessons = {}
-    
     if form.validate_on_submit():
         
         group = form.groupname.data
         from_day = form.from_day.data
         to_day = form.to_day.data
-        teacher_name = form.teacher_name.data
+        teacher = form.teacher.data
 
-        try:
-            group_record = utils.get_group_by_name(group)
-            lessons = utils.get_lessons_range(group_record, from_day, to_day)
-            app.logger.info(lessons)
-        except SQLAlchemyError as e:
-            error = "Incorrect input data!"
+        group = Group.query.filter_by(name=group).first()
+        if not group:
+            flash(f'Group {group} not found', 'info')
+            return redirect(url_for('index'))
 
-    return render_template('index.html', form=form, day_schedules=lessons, error=error)
+        lessons = utils.get_lessons_range(group, from_day, to_day)
+
+    return render_template('index.html', form=form, day_schedule=lessons)
 
 
-@app.route('/add_schedule', methods=['GET', 'POST'])
+@app.route('/add_schedule/', methods=['GET', 'POST'])
 @login_required
-def add():
+def add_schedule():
     data = request.get_json()
     message = None
     success = True
@@ -74,14 +71,14 @@ def add():
             date = data['date']
             order = data['order']
             auditory = data['auditory']
-            teacher_name = data['teacher']['name']
+            teacher = data['teacher']['name']
             teacher_surname = data['teacher']['surname']
             teacher_patronymic = data['teacher']['patronymic']
             subject_title = data['subject']['title']
             subject_type = data['subject']['subj_type']
             # Get teacher record
             group = utils.get_group_by_name(group)
-            teacher = utils.get_teacher(teacher_name, teacher_surname, teacher_patronymic)
+            teacher = utils.get_teacher(teacher, teacher_surname, teacher_patronymic)
             
             # Get subject record
             subject = utils.get_subject(subject_title, subject_type)
@@ -99,8 +96,9 @@ def add():
             message = "Incorrect order!"
             success = False
         except KeyError as ke:
-            app.logger.info("Caught empty lesson")
+            app.logger.info(ke)
             success = False
+            message = "Caught empty lesson"
         except SQLAlchemyError as se:
             app.logger.info(se)
             success = False
@@ -110,7 +108,8 @@ def add():
     else:
         return render_template('add_schedule.html')
 
-@app.route('/copy_schedule', methods=['POST'])
+
+@app.route('/copy_schedule/', methods=['POST'])
 def copy():
     data = request.get_json()
     if data and len(data):
@@ -148,13 +147,16 @@ def copy():
             app.logger.info(ve)
         
     return jsonify(success=True)
-@app.route('/login', methods=['GET', 'POST'])
+
+
+@app.route('/login/', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
+    
     form = LoginForm()
     if form.validate_on_submit():
-        admin = Admin.query.filter_by(username=form.username.data).first()
+        admin = Administrator.query.filter_by(username=form.username.data).first()
         if admin is None or not admin.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('login'))
@@ -163,27 +165,27 @@ def login():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('add_schedule')
         return redirect(next_page)
-        # return redirect(url_for('add_schedule'))
+        
     return render_template('login.html', title='Sign In', form=form)
 
-@app.route('/logout')
+@app.route('/logout/')
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route('/groups')
+@app.route('/groups/')
 def groups():
     records = Group.query.all()
     group_list = [rec.as_dict() for rec in records]
     return jsonify(group_list)
 
-@app.route('/teachers')
+@app.route('/teachers/')
 def teachers():
     records = Teacher.query.all()
     teacher_list = [rec.as_dict() for rec in records]
     return jsonify(teacher_list)
 
-@app.route('/subjects')
+@app.route('/subjects/')
 def subjects():
     records = Subject.query.all()
     subject_list = [rec.as_dict() for rec in records]
@@ -193,44 +195,6 @@ def subjects():
 def page_not_found(error):
 	app.logger.error(f'Page not found: {request.path}')
 	return render_template('404.html'), 404
-
-@app.route('/create', methods=["GET", "POST"])
-def create():
-    # Creating schedule for one semester
-    schedule_meta = request.json
-    app.logger.info(schedule_meta)
-    flash_msg = None
-
-    if schedule_meta:
-        group = schedule_meta.get('groupname', None)
-        date_from = schedule_meta.get('date_from', None)
-        date_to = schedule_meta.get('date_to', None)
-        subjects = schedule_meta.get('subjects', None)
-        
-        try:
-            timetable = Timetable(group, date_from, date_to, subjects)
-            timetable.generate_random_timetable()
-            timetable.display_timetable()
-            timetable.insert_into_db()
-
-        except ValueError as ve:
-            flash_msg = str(ve)
-
-        except utils.CannotCreateException as exp:
-            flash_msg = str(exp)
-
-        except SQLAlchemyError as sqle:
-            app.logger.info(sqle)
-            flash_msg = str(sqle)
-            
-    if flash_msg:
-        return jsonify({
-            'flash': flash_msg
-            })
-    
-    response = make_response(render_template('semester.html'))
-    response.headers['Content-type'] = 'text/html; charset=utf-8'
-    return response
 
 
 @app.route('/delete', methods=["POST"])
@@ -253,7 +217,7 @@ def update(lesson_id):
         # Read without validation
         order = data['order']
         auditory = data['auditory']
-        teacher_name = data['teacher']['name']
+        teacher = data['teacher']['name']
         teacher_surname = data['teacher']['surname']
         teacher_patronymic = data['teacher']['patronymic']
         subject_title = data['subject']['title']
@@ -263,7 +227,7 @@ def update(lesson_id):
         subject = None
         try:
             # Get teacher record
-            teacher = utils.get_teacher(teacher_name, teacher_surname, teacher_patronymic)
+            teacher = utils.get_teacher(teacher, teacher_surname, teacher_patronymic)
             
             # Get subject record
             subject = utils.get_subject(subject_title, subject_type)

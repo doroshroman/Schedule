@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 
+    
 {% block content %}
-    <h1 class="h1 text-center"> Schedule</h1>
+    <p class="h1 text-center">Schedule</p>
+    
     <div class="container">
     <form class="form-row" id="add-form" action="{{ url_for('index') }}" method="post" novalidate>
         {{ form.hidden_tag() }}
         {% include 'search_form.html' %}
     </form>
     </div>
-    {% for date, lessons in day_schedules.items() %}
+    {% for date, lessons in day_schedule.items() %}
         <div class="day">
         <h3 class="lead">{{date}}</h3>
             <table class="table table-striped text-center form-group">

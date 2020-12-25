@@ -3,7 +3,6 @@ from datetime import date, timedelta, datetime
 from flask import logging
 from app.models import *
 from app import app, db
-from sqlalchemy.orm.session import make_transient
 
 def copy_lesson(lesson, date):
     lesson = Lesson(date=date, order=lesson.order, auditory=lesson.auditory, teacher=lesson.teacher, group=lesson.group, subject=lesson.subject)
@@ -47,8 +46,6 @@ def read_lesson_data(form, order):
 def is_valid_lesson(lesson):
     return not('' in lesson.values() or None in lesson.values())
 
-def get_group_by_name(name):
-    return db.session().query(Group).filter_by(name=name).one()
 
 def get_teacher(name, surname, patronymic):
     teacher = db.session().query(Teacher).filter(
@@ -74,7 +71,7 @@ def get_lessons(group, date):
 
 def get_lessons_range(group, date_from, date_to):
     lessons_range = db.session.query(Lesson).filter_by(group=group).filter(Lesson.date.between(date_from, date_to)).order_by(Lesson.date).order_by(Lesson.order).all()
-    lessons = utils.convert_lessons_to_dict(lessons_range)
+    lessons = convert_lessons_to_dict(lessons_range)
     return lessons
 
 def convert_lessons_to_dict(lessons):
