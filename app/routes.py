@@ -6,13 +6,12 @@ from datetime import date, timedelta
 from app import app
 from app import utils
 from app import db
-from app.forms import AddScheduleForm
 from app.forms import LoginForm
 from app.forms import SearchForm
 from app.models import Teacher, Group, Lesson, Subject, Administrator
 
 
-@app.route('/index4update/', methods=['GET', 'POST'])
+@app.route('/index/update/', methods=['GET', 'POST'])
 @login_required
 def index4update():
     form = SearchForm()
@@ -54,7 +53,20 @@ def index():
             flash(f'Group {group} not found', 'info')
             return redirect(url_for('index'))
 
-        lessons = utils.get_lessons_range(group, from_day, to_day)
+        pib_len = 3
+        if not teacher:
+            lessons = utils.get_lessons_range(group, from_day, to_day)
+        elif len(teacher.split()) == pib_len:
+            name, surname, patronymic = teacher.split()
+            teacher = utils.get_teacher(name, surname, patronymic)
+            lessons = utils.get_lessons_range_with_teacher(group, teacher, from_day, to_day)
+        else:
+            flash('Teacher not found', 'info')
+            return redirect(url_for('index'))
+        
+        if not lessons:
+            flash(f'No lessons for this period', 'info')
+            return redirect(url_for('index'))
 
     return render_template('index.html', form=form, day_schedule=lessons)
 
@@ -199,7 +211,7 @@ def page_not_found(error):
 	return render_template('404.html'), 404
 
 
-@app.route('/delete', methods=["POST"])
+@app.route('/delete/', methods=["POST"])
 @login_required
 def delete():
     id = request.json
@@ -214,7 +226,7 @@ def delete():
 @login_required
 def update(lesson_id):
     data = request.get_json()
-    
+    print(data)
     if data and len(data):
         # Read without validation
         order = data['order']

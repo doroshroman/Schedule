@@ -20,8 +20,8 @@ $(document).ready(function(){
             e.preventDefault();
             groupName = $('#groupname').val().trim();
             date = $('#date').val().trim();
-        for (let i=0;i < maxPairs; i++){
-            let order = i+1;
+        for (let i = 0;i < maxPairs; i++){
+            let order = i + 1;
             let auditory = $('#auditory'+ (i+1)).val().trim();
             let teacher = $('#teacher'+ (i+1)).val().split(' ');
             let subject = $('#subject'+ (i+1)).val().trim();

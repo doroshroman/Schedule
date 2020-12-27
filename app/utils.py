@@ -63,12 +63,16 @@ def get_subject(title, subj_type):
 
    
 def get_lessons(group, date):
-    print(date)
     lessons_per_day = Lesson.query.filter_by(group=group, date=date).order_by(Lesson.order).all()
     return lessons_per_day 
 
 def get_lessons_range(group, date_from, date_to):
     lessons_range = db.session.query(Lesson).filter_by(group=group).filter(Lesson.date.between(date_from, date_to)).order_by(Lesson.date).order_by(Lesson.order).all()
+    lessons = convert_lessons_to_dict(lessons_range)
+    return lessons
+
+def get_lessons_range_with_teacher(group, teacher, date_from, date_to):
+    lessons_range = db.session.query(Lesson).filter_by(group=group, teacher=teacher).filter(Lesson.date.between(date_from, date_to)).order_by(Lesson.date).order_by(Lesson.order).all()
     lessons = convert_lessons_to_dict(lessons_range)
     return lessons
 

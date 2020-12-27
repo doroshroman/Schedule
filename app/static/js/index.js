@@ -52,7 +52,27 @@ async function editLesson(parent, id){
     let teacher_full = teacher.name + " " + teacher.surname + " " + teacher.patronymic; 
     let subject = lesson.subject 
 
-    let row = "<tr class=clickable id=" + id + ">";
+
+    // Add tr with info field
+    let info = "<tr>"
+    info += "<td>"
+    info += "<small>New order</small>"
+    info += "</td>"
+    info += "<td>"
+    info += "<small>New auditory</small>"
+    info += "</td>"
+    info += "<td>"
+    info += "<small>New teacher</small>"
+    info += "</td>"
+    info += "<td>"
+    info += "<small>New lesson</small>"
+    info += "</td>"
+    info += "<td>"
+    info += "<small>New lesson type</small>"
+    info += "</td>"
+    info += "</tr>"
+    
+    let row = info + "<tr class=clickable id=" + id + ">";
     // Order
     row += "<td>";
     row += "<input id='order" + id + "' type='number' class='form-control' min=1 max=5 value=" + order + ">" ;
@@ -139,7 +159,9 @@ $(document).ready(function(){
     $('#groupname').autocomplete({
         source: groups
     });
-
+    $('#teacher').autocomplete({
+        source: teachers
+    });
     // Add to all input fields
     const lessons = 5
     for(let i = 0; i < lessons; i++){
@@ -165,7 +187,7 @@ $(document).ready(function(){
             closest.append(edit_btn, delete_btn);
 
             $("#delete-lesson" + id).on("click", async () => {
-                const response = await fetch('/delete', getPostOptions(id));
+                const response = await fetch('/delete/', getPostOptions(id));
                 if(response.ok){
                     
                     let lessonsInTable = closest.parent().find('tr').length
