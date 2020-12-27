@@ -43,7 +43,7 @@ function getPostOptions(data){
 // Edit lesson
 async function editLesson(parent, id){
 
-    const response = await fetch('/lesson/' + id)
+    const response = await fetch(`/lesson/${id}`)
     const lesson = await response.json();
     
     let order = lesson.order
@@ -135,12 +135,13 @@ async function editLesson(parent, id){
                 'subj_type': subject_type
             }
         }
-        const response = await fetch('/update/lesson/' + id, getPostOptions(data));
+        const response = await fetch(`/lesson/${id}/update/`, getPostOptions(data));
         const resp_message = await response.json();
+        console.log(resp_message);
         if(resp_message.success === true){
             $('#flash-msg').show().text(resp_message['message']); 
 
-            setTimeout(() => { document.location.reload(true); }, 3000);
+            setTimeout(() => { document.location.reload(true); }, 1000);
             
         }else{
             $('#flash-msg').show().text(resp_message['message']); 
@@ -187,7 +188,7 @@ $(document).ready(function(){
             closest.append(edit_btn, delete_btn);
 
             $("#delete-lesson" + id).on("click", async () => {
-                const response = await fetch('/delete/', getPostOptions(id));
+                const response = await fetch(`/lesson/${id}/delete/`, getPostOptions(id));
                 if(response.ok){
                     
                     let lessonsInTable = closest.parent().find('tr').length

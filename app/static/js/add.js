@@ -5,9 +5,9 @@ $(document).ready(function(){
     for (let i=0; i<maxPairs; i++){
         let subject =`<tr> 
         <td>${i + 1}</td>
-        <td><input id='auditory${i + 1}' type='text' class='form-control'  ></td>
-        <td><input id='teacher${i + 1}' type='text' class='form-control'</td>
-        <td><input id='subject${i + 1}' type='text' class='form-control'</td>
+        <td><input id='auditory${i + 1}' type='text' class='form-control'></td>
+        <td><input id='teacher${i + 1}' type='text' class='form-control'></td>
+        <td><input id='subject${i + 1}' type='text' class='form-control'></td>
         <td><select id='subject-type${i + 1}' class='form-control'>
         <option value='lec' selected>Lecture</option>
         <option value='lab'>Practice</option></select>
@@ -58,8 +58,9 @@ $(document).ready(function(){
                     $('#copyform').show();
                 }else{
                     if (data.message){
-                        $('#flash-msg').show().text(data.message);
+                        $('#flash-msg').show().text(data.message + ` in row ${i + 1}`);
                     }
+                    break
                 }
         }
     }
@@ -88,7 +89,11 @@ $(document).ready(function(){
             },
             body: JSON.stringify(copyData)
         }
-        const response = await fetch('/copy_schedule/', options)
-        console.log(response);
+        const res = await fetch('/copy_schedule/', options);
+        const data = await res.json();
+        console.log(data);
+        if(data.redirect){
+            window.location.href = data.redirect;
+        } 
     })
 })

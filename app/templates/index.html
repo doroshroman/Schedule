@@ -1,20 +1,19 @@
 {% extends "base.html" %}
 
-    
+{% block header %}
+    <p class="h1 text-center">Faculty Schedule</p>
+{% endblock %}
 {% block content %}
-    <p class="h1 text-center">Schedule</p>
     <div class="container">
         <div class="row justify-content-center">
             <div id="flash-msg" class="alert alert-danger col-4" role="alert">
             </div>
         </div>
     </div>
-    <div class="container">
-    <form class="form-row" id="add-form" action="{{ url_for('index') }}" method="post" novalidate>
+    <form class="form-row" id="add-form" action="{% if current_user.is_authenticated %}{{ url_for('index_update') }}{% else %}{{ url_for('index') }}{% endif %}" method="post" novalidate>
         {{ form.hidden_tag() }}
         {% include 'search_form.html' %}
     </form>
-    </div>
     {% for date, lessons in day_schedule.items() %}
         <div class="day">
         <h3 class="lead">{{date}}</h3>
@@ -30,7 +29,11 @@
             </thead>
             <tbody>
             {% for lesson in lessons %}
-            <tr>
+            {% if current_user.is_authenticated %}
+                <tr class="clickable" id="{{ lesson.id }}">
+            {% else %}
+                <tr>
+            {% endif %}
                 <td> {{ lesson.order }}</td>
                 <td>{{ lesson.auditory }}</td>
                 <td> {{ lesson.order | slot_start }} {{ lesson.order | slot_end }} </td>

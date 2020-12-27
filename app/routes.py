@@ -13,7 +13,7 @@ from app.models import Teacher, Group, Lesson, Subject, Administrator
 
 @app.route('/index/update/', methods=['GET', 'POST'])
 @login_required
-def index4update():
+def index_update():
     form = SearchForm()
     error = None
     from_day = None
@@ -34,7 +34,7 @@ def index4update():
         except SQLAlchemyError as e:
             error = "Incorrect input data!"
 
-    return render_template('admin_index.html', form=form, day_schedules=lessons, error=error)
+    return render_template('index.html', form=form, day_schedule=lessons, error=error)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -50,7 +50,7 @@ def index():
 
         group = Group.query.filter_by(name=group).first()
         if not group:
-            flash(f'Group {group} not found', 'info')
+            flash(f'Group not found', 'info')
             return redirect(url_for('index'))
 
         pib_len = 3
@@ -122,7 +122,7 @@ def add_schedule():
         return render_template('add_schedule.html')
 
 
-@app.route('/copy_schedule/', methods=['POST'])
+@app.route('/copy_schedule/', methods=['GET', 'POST'])
 def copy():
     data = request.get_json()
     if data and len(data):
@@ -139,7 +139,6 @@ def copy():
 
             group = Group.query.filter_by(name=group).first()
             lessons = utils.get_lessons(group, date)
-            print(lessons)
             days = utils.build_days_range(date_from, date_to)
             
             step = 7
@@ -156,11 +155,12 @@ def copy():
                 for i in range(first_day_index, len(days), step):
                     for lesson in lessons:
                         utils.copy_lesson(lesson, days[i])
-                        
+            return jsonify({"redirect": "/"})        
         except ValueError as ve:
             app.logger.info(ve)
-        
-    return jsonify(success=True)
+    
+    flash('Incorrect data in copy form', 'warning')
+    return jsonify({"redirect": "/add_schedule"})
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -172,12 +172,12 @@ def login():
     if form.validate_on_submit():
         admin = Administrator.query.filter_by(username=form.username.data).first()
         if admin is None or not admin.check_password(form.password.data):
-            flash('Invalid username or password')
+            flash('Invalid username or password', 'warning')
             return redirect(url_for('login'))
         login_user(admin, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('add_schedule')
+            next_page = url_for('index')
         return redirect(next_page)
         
     return render_template('login.html', title='Sign In', form=form)
@@ -211,38 +211,36 @@ def page_not_found(error):
 	return render_template('404.html'), 404
 
 
-@app.route('/delete/', methods=["POST"])
+@app.route('/lesson/<int:lesson_id>/delete/', methods=["POST"])
 @login_required
-def delete():
-    id = request.json
-    if id:
-        Lesson.query.filter_by(id=int(id)).delete()
+def delete(lesson_id):
+    lesson = Lesson.query.get(lesson_id)
+    if lesson:
+        db.session.delete(lesson)
         db.session.commit()
         return jsonify(success=True)
     else:
         return jsonify(success=False)
 
-@app.route('/update/lesson/<int:lesson_id>', methods=["POST"])
+@app.route('/lesson/<int:lesson_id>/update/', methods=["POST"])
 @login_required
 def update(lesson_id):
     data = request.get_json()
-    print(data)
     if data and len(data):
-        # Read without validation
+
         order = data['order']
         auditory = data['auditory']
-        teacher = data['teacher']['name']
+        teacher_name = data['teacher']['name']
         teacher_surname = data['teacher']['surname']
         teacher_patronymic = data['teacher']['patronymic']
         subject_title = data['subject']['title']
         subject_type = data['subject']['subj_type']
-
+        
         teacher = None
         subject = None
         try:
             # Get teacher record
-            teacher = utils.get_teacher(teacher, teacher_surname, teacher_patronymic)
-            
+            teacher = utils.get_teacher(teacher_name, teacher_surname, teacher_patronymic)
             # Get subject record
             subject = utils.get_subject(subject_title, subject_type)
         except SQLAlchemyError as se:
