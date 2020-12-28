@@ -123,6 +123,7 @@ def add_schedule():
 
 
 @app.route('/copy_schedule/', methods=['GET', 'POST'])
+@login_required
 def copy():
     data = request.get_json()
     if data and len(data):

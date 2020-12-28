@@ -22,6 +22,10 @@ def create_tables():
 @click.argument('password')
 @with_appcontext
 def create_admin(username, email, password):
+    admin = Administrator.query.filter_by(username=username, email=email).first()
+    if admin:
+        click.echo('Admin already exists')
+        return 
     admin = Administrator(username=username, email=email)
     admin.set_password(password)
     db.session.add(admin)

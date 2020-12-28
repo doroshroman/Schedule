@@ -60,7 +60,6 @@ $(document).ready(function(){
                     if (data.message){
                         $('#flash-msg').show().text(data.message + ` in row ${i + 1}`);
                     }
-                    break
                 }
         }
     }
